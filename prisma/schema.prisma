@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  nomorIndukKaryawan      String            @unique @db.VarChar(10)
+  password      String    @db.VarChar(Max)
+  role          String    @db.VarChar(10)
+  isFirstLogin  Boolean
+  name          String?
+  username      String?
+  email         String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                       String   @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?  @db.Text
+  access_token             String?  @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?  @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model DataBranch {
+  idBranch     String         @id(map: "PK_DataBranch") @db.VarChar(10)
+  namaBranch   String         @db.VarChar(100)
+  alamat       String?        @db.VarChar(Max)
+  DataKaryawan DataKaryawan[]
+}
+
+model DataCareerPlan {
+  idCareerPlan       String       @id(map: "PK_DataCareerPlan") @db.VarChar(10)
+  nomorIndukKaryawan String       @db.VarChar(10)
+  positionShortTerm  String?      @db.VarChar(100)
+  positionLongTerm   String?      @db.VarChar(100)
+  DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataCareerPlan_DataKaryawan")
+}
+
+model DataDepartment {
+  idDepartment   String         @id(map: "PK_DataDepartment") @db.VarChar(10)
+  namaDepartment String         @db.VarChar(100)
+  InvolvedDept   InvolvedDept[]
+}
+
+model DataKaryawan {
+  nomorIndukKaryawan            String                          @id(map: "PK_DataKaryawan") @db.VarChar(10)
+  namaKaryawan                  String                          @db.VarChar(100)
+  tanggalLahir                  DateTime                        @db.Date
+  tanggalMasukKerja             DateTime                        @db.Date
+  gender                        String                          @db.VarChar(10)
+  personnelArea                 String                          @db.VarChar(10)
+  position                      String                          @db.VarChar(100)
+  personnelSubarea              String                          @db.VarChar(10)
+  levelPosition                 String                          @db.VarChar(10)
+  age                           Float
+  lengthOfService               Float
+  pend                          String                          @db.VarChar(5)
+  namaSekolah                   String                          @db.VarChar(100)
+  namaJurusan                   String                          @db.VarChar(100)
+  DataCareerPlan                DataCareerPlan[]
+  DataBranch                    DataBranch                      @relation(fields: [personnelArea], references: [idBranch], map: "FK_DataKaryawan_DataBranch")
+  DataLevel                     DataLevel                       @relation(fields: [levelPosition], references: [idLevel], map: "FK_DataKaryawan_DataLevel")
+  DataPosition                  DataPosition                    @relation(fields: [position], references: [namaPosition], map: "FK_DataKaryawan_DataPosition")
+  DataMentorWanted              DataMentorWanted[]
+  DataRiwayatGKM                DataRiwayatGKM[]
+  DataRiwayatKarir              DataRiwayatKarir[]
+  DataRiwayatKepanitiaan        DataRiwayatKepanitiaan[]
+  DataRiwayatOrganisasiInternal DataRiwayatOrganisasiInternal[]
+  DataRiwayatProject            DataRiwayatProject[]
+  DataTrainingWanted            DataTrainingWanted[]
+}
+
+model DataLevel {
+  idLevel      String         @id(map: "PK_DataLevel") @db.VarChar(10)
+  namaLevel    String         @db.VarChar(50)
+  DataKaryawan DataKaryawan[]
+}
+
+model DataMentorWanted {
+  idMentorWanted     String       @id(map: "PK_DataMentorWanted") @default(cuid())
+  namaMentor         String       @db.VarChar(100)
+  posisiMentor       String       @db.VarChar(100)
+  cabangMentor       String       @db.VarChar(10)
+  nomorIndukKaryawan String       @db.VarChar(10)
+  DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataMentorWanted_DataKaryawan")
+}
+
+model DataPosition {
+  namaPosition String         @id(map: "PK_DataPosition") @unique @db.VarChar(100)
+  DataKaryawan DataKaryawan[]
+}
+
+model DataRiwayatGKM {
+  idRiwayatGKM        String       @id(map: "PK_DataRiwayatGKM") @default(cuid())
+  nomorIndukKaryawan  String       @db.VarChar(10)
+  banyakKeikutsertaan Int
+  posisiTertinggi     String       @db.VarChar(50)
+  DataKaryawan        DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatGKM_DataKaryawan")
+}
+
+model DataRiwayatKarir {
+  idCareerHistory    String       @id @default(cuid())
+  nomorIndukKaryawan String       @db.VarChar(10)
+  position           String       @db.VarChar(100)
+  levelPosition      String       @db.VarChar(10)
+  personnelArea      String       @db.VarChar(10)
+  personnelSubarea   String       @db.VarChar(10)
+  tanggalMulai       DateTime?    @db.Date
+  tanggalBerakhir    DateTime?    @db.Date
+  status             Int
+  DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatKarir_DataKaryawan")
+}
+
+model DataRiwayatKepanitiaan {
+  idRiwayatKepanitiaan String       @id(map: "PK_DataKepanitiaan") @default(cuid())
+  nomorIndukKaryawan   String       @db.VarChar(10)
+  namaAcara            String       @db.VarChar(100)
+  namaPosisi           String       @db.VarChar(100)
+  tahunPelaksanaan     Int
+  DataKaryawan         DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatKepanitiaan_DataKaryawan")
+}
+
+model DataRiwayatOrganisasiInternal {
+  idRiwayatOrganisasiInternal String       @id(map: "PK_DataRiwayatOrganisasiInternal") @default(cuid())
+  namaOrganisasi              String       @db.VarChar(100)
+  namaPosisi                  String       @db.VarChar(100)
+  tahunMulai                  Int
+  tahunSelesai                Int?
+  nomorIndukKaryawan          String       @db.VarChar(10)
+  DataKaryawan                DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatOrganisasiInternal_DataKaryawan")
+}
+
+model DataRiwayatProject {
+  idRiwayatProject   String       @id(map: "PK_DataRiwayatProject") @default(cuid())
+  judulProject       String       @db.VarChar(100)
+  namaPosisi         String       @db.VarChar(100)
+  lamaKolaborasi     Int
+  shortDesc          String       @db.VarChar(Max)
+  nomorIndukKaryawan String       @db.VarChar(10)
+  DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatProject_DataKaryawan")
+}
+
+model DataTrainingWanted {
+  idTraining         String       @id(map: "PK_Table1") @default(cuid())
+  nomorIndukKaryawan String       @db.VarChar(10)
+  topikTraining      String       @db.VarChar(100)
+  DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataTrainingWanted_DataKaryawan")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B61ACEA9432") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model AssessmentType {
+  idAssessmentType String             @id(map: "PK_AssessmentType") @db.VarChar(10)
+  titleAT          String             @db.VarChar(Max)
+  descAT           String             @db.VarChar(Max)
+  typeAT           String             @db.VarChar(50)
+  idForm           String             @db.VarChar(10)
+  Forms            Forms              @relation(fields: [idForm], references: [idForm], onDelete: Cascade, map: "FK_AssessmentType_Forms")
+  InvolvedPosition InvolvedPosition[]
+  Questions        Questions[]
+}
+
+model Forms {
+  idForm         String           @id(map: "PK_Forms") @db.VarChar(10)
+  titleForm      String           @db.VarChar(Max)
+  descForm       String           @db.VarChar(Max)
+  AssessmentType AssessmentType[]
+  InvolvedDept   InvolvedDept[]
+}
+
+model InvolvedDept {
+  idID           String         @id(map: "PK_InvolvedDept") @db.VarChar(10)
+  idForm         String         @db.VarChar(10)
+  idDepartement  String         @db.VarChar(10)
+  DataDepartment DataDepartment @relation(fields: [idDepartement], references: [idDepartment], onDelete: Cascade, map: "FK_InvolvedDept_DataDepartment")
+  Forms          Forms          @relation(fields: [idForm], references: [idForm], onDelete: Cascade, map: "FK_InvolvedDept_Forms")
+}
+
+model InvolvedPosition {
+  idIP             String         @id(map: "PK_InvolvedPosition") @db.VarChar(10)
+  idAssessmentType String         @db.VarChar(10)
+  namaPosition       String       @db.VarChar(100)
+  AssessmentType   AssessmentType @relation(fields: [idAssessmentType], references: [idAssessmentType], onDelete: Cascade, map: "FK_InvolvedPosition_AssessmentType")
+}
+
+model Questions {
+  idQuestion     String         @id(map: "PK_Questions") @db.VarChar(10)
+  titleQue       String         @db.VarChar(Max)
+  Question       String         @db.VarChar(Max)
+  idAT           String         @db.VarChar(10)
+  AssessmentType AssessmentType @relation(fields: [idAT], references: [idAssessmentType], onDelete: Cascade, map: "FK_Questions_AssessmentType")
+}
