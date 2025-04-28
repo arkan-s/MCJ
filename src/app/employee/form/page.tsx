@@ -1,12 +1,22 @@
 'use client'
-import * as contextHook from "@/hooks/context/formcontext"
 import { SelfCareerHistoryForm, SelfOrgIntHistoryForm, ProjectHistoryForm, ComiteeHistoryForm, TrainingWantedForm, GKMHistoryForm, MentorWantedForm, EmpCareerChoiceComponents, CareerofMyChoiceComponents, BestEmployeeComponents} from "./Form"
-import { act, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { bitter } from "@/components/ui/fonts";
 import { PaginationFormHandler } from "@/app/employee/form/FormPagination";
-import { Button } from "@/components/ui/button";
-import { SessionProvider } from "next-auth/react";
+import { useRouter } from 'next/navigation';
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { getdatakaryawan } from "@/utils/fetchData";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 
 const usePrevious = <T,>(val: T) => {
     const ref = useRef<undefined | T>(undefined);
@@ -17,10 +27,21 @@ const usePrevious = <T,>(val: T) => {
 }
 
 export default function Form() {
+    const { data: session } = useSession();
+    
+    const { data: dataKaryawan, isLoading: karyawanLoading, isError: karyawanError } = useQuery({
+        queryKey: ['datakaryawan'],
+        queryFn: () => getdatakaryawan(session?.user?.nik),
+        refetchOnWindowFocus: false,
+        enabled: !!session?.user?.nik,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+    })
+
     const [activeIndex, setActiveIndex] = useState(0);
     const previousIndex = usePrevious(activeIndex) ?? activeIndex;
-    const [allowedNext, setallowedNext] = useState<boolean>(false);
-    
+    const [loadSubmit, setLoadSubmit] = useState<boolean>(false);
+        
     const direction: Direction = previousIndex > activeIndex
                 ? 'back'
                 : 'forward';
@@ -59,45 +80,63 @@ export default function Form() {
     ];
     const total_components = components.length;
 
+    if(session?.user.formFilled === 1){
+        return (
+            <div className={`flex text-xl text-gray-800 md:text-3xl md:leading-normal flex flex-col justify-center items-center grow bg-blue-50 w-full`}>
+                <Image src="/image/logo-icbp.png" alt="logo icbp" width={300} height={60} />
+                <h2 className="mt-4 text-center">Terima kasih karena sudah mengisi form data diri.</h2>
+            </div>
+        )
+    }
+    
+
+    if (karyawanLoading) {
+        return (
+            <div className="grow flex flex-col px-5 py-5 w-full md:px-[5%] md:pt-[5%] md:pb-[2%] z-10 overflow-x-hidden">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-t-zinc-700 border-b-zinc-700 border-transparent"></div>
+            </div>
+        );
+    }
+
     return (
-        // <formValidContext.CareerHistoryErrProvider>
-        //     <formValidContext.OrgIntHistoryErrorsProvider>
-        //         <formValidContext.ProjectHistoryErrorsProvider>
-        //             <formValidContext.ComiteeHistoryErrorsProvider>
-        //                 <formValidContext.TrainingErrorsProvider>
-        //                     <formValidContext.GKMErrProvider>
-        //                         <formValidContext.MentorErrProvider>
-        //                             <formV>
-        <SessionProvider>
-                                        <contextHook.AllProviders>
-                                            <div className="grow flex flex-col px-5 py-5 w-full md:px-[5%] md:pt-[5%] md:pb-[2%] z-10 overflow-x-hidden">
-                                                <div className="relative grow w-full flex flex-col overflow-y-auto overflow-x-hidden">
-                                                    {/* MENAMPILKAN PERTANYAAN */}
-                                                    <AnimatePresence initial={false} mode="sync" custom={direction}>
-                                                        <motion.div
-                                                            key={activeIndex} // Harus unik agar Framer Motion bisa melacak perubahan
-                                                            variants={variants}
-                                                            initial="initial"
-                                                            animate="target"
-                                                            exit="exit"
-                                                            custom={direction}
-                                                            transition={{ type: "spring", duration: 0.5, stiffness: 250, damping: 15 }}
-                                                            className="w-full p-1 flex-col"
-                                                            style={{ position: "absolute", width: "100%" }}
-                                                        >
-                                                            <h1 className={`${bitter.className} block text-lg mb-5 justify-self-center text-center`}>
-                                                                <b>{components[activeIndex].label}</b>
-                                                            </h1>
-                                                            <div className="mb-2">{components[activeIndex].component}</div>
-                                                        </motion.div>
-                                                    </AnimatePresence>
-                                                </div>
-                                                {/* UNTUK PAGINATION TOMBOLNYA */}
-                                                <div>
-                                                    <PaginationFormHandler allowedNext={allowedNext} total_pages={total_components} page_number={activeIndex} changing_page={backandforthButton} />
-                                                </div>
-                                            </div>
-                                        </contextHook.AllProviders>
-        </SessionProvider>
+        <div className="grow flex flex-col px-5 py-5 w-full md:px-[5%] md:pt-[5%] md:pb-[2%] z-10 overflow-x-hidden">
+            <div className="relative grow w-full flex flex-col overflow-y-auto overflow-x-hidden">
+                {/* MENAMPILKAN PERTANYAAN */}
+                <AnimatePresence initial={false} mode="sync" custom={direction}>
+                    <motion.div
+                        key={activeIndex} // Harus unik agar Framer Motion bisa melacak perubahan
+                        variants={variants}
+                        initial="initial"
+                        animate="target"
+                        exit="exit"
+                        custom={direction}
+                        transition={{ type: "spring", duration: 0.5, stiffness: 250, damping: 15 }}
+                        className="w-full p-1 flex-col"
+                        style={{ position: "absolute", width: "100%" }}
+                    >
+                        <h1 className={`${bitter.className} block text-lg mb-5 justify-self-center text-center`}>
+                            <b>{components[activeIndex].label}</b>
+                        </h1>
+                        <div className="mb-2">{components[activeIndex].component}</div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+            <AlertDialog open={loadSubmit} onOpenChange={setLoadSubmit}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle className="font-extrabold text-xl">Mengupload Data</AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm">
+                        Data sedang di-upload. Mohon tunggu sebentar.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            {/* UNTUK PAGINATION TOMBOLNYA */}
+            <div>
+                <PaginationFormHandler total_pages={total_components} page_number={activeIndex} changing_page={backandforthButton} submitLoading={setLoadSubmit}/>
+            </div>
+        </div>
     )
 }

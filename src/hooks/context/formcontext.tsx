@@ -1,6 +1,6 @@
 'use client'
 import { createContext, useContext, useState, ReactNode } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { createId } from "@paralleldrive/cuid2";
 
 
 export type CareerHistoryItem = {
@@ -24,14 +24,14 @@ export const initialCareerHistoryVal: CareerHistoryItem = [{
     tanggalMulai: null,
     tanggalBerakhir: null,
     status: 0,
-    id: uuidv4()
+    id: createId()
 }];
 
 export const CareerHistoryContext = createContext<{ careerHistory: CareerHistoryItem | null; setCareerHistory: React.Dispatch<React.SetStateAction<CareerHistoryItem | null>> } | null>(null);
 
 export const CareerHistoryProvider = ({ children }: { children: ReactNode }) => {
     const [careerHistory, setCareerHistory] = useState<CareerHistoryItem | null>(null);
-return <CareerHistoryContext.Provider value={{ careerHistory, setCareerHistory }}>{children}</CareerHistoryContext.Provider>;
+    return <CareerHistoryContext.Provider value={{ careerHistory, setCareerHistory }}>{children}</CareerHistoryContext.Provider>;
 };
 
 export const useCareerHistory = () => useContext(CareerHistoryContext);
@@ -42,6 +42,7 @@ export type OrgIntHistoryItem = {
     name: string;
     jabatan: string;
     startYear: number;
+    endYear: number | null;
     id: string;
 }[];
 
@@ -49,13 +50,14 @@ export const initialOrgIntVal: OrgIntHistoryItem = [{
     name: "",
     jabatan: "",
     startYear: 0,
-    id: uuidv4(),
+    endYear: 0,
+    id: createId(),
 }];
 
 export const OrgIntHistoryContext = createContext<{ orgIntHistory: OrgIntHistoryItem | null; setOrgIntHistory: React.Dispatch<React.SetStateAction<OrgIntHistoryItem | null>> } | null>(null);
 
 export const OrgIntHistoryProvider = ({ children }: { children: ReactNode }) => {
-    const [orgIntHistory, setOrgIntHistory] = useState<OrgIntHistoryItem | null>(null);
+    const [orgIntHistory, setOrgIntHistory] = useState<OrgIntHistoryItem | null>(initialOrgIntVal);
     return <OrgIntHistoryContext.Provider value={{ orgIntHistory, setOrgIntHistory }}>{children}</OrgIntHistoryContext.Provider>;
 };
 
@@ -76,13 +78,13 @@ export const initialProjectHistoryVal: ProjectHistoryItem = [{
     year: 0,
     peran: "",
     shortDesc: "",
-    id: uuidv4(),
+    id: createId(),
 }];
 
 export const ProjectHistoryContext = createContext<{ projectHistory: ProjectHistoryItem | null; setProjectHistory: React.Dispatch<React.SetStateAction<ProjectHistoryItem | null>> } | null>(null);
 
 export const ProjectHistoryProvider = ({ children }: { children: ReactNode }) => {
-    const [projectHistory, setProjectHistory] = useState<ProjectHistoryItem | null>(null);
+    const [projectHistory, setProjectHistory] = useState<ProjectHistoryItem | null>(initialProjectHistoryVal);
     return <ProjectHistoryContext.Provider value={{ projectHistory, setProjectHistory }}>{children}</ProjectHistoryContext.Provider>;
 };
 
@@ -101,13 +103,13 @@ export const initialComiteeHistoryVal: ComiteeHistoryItem = [{
     name: "",
     jabatan: "",
     year: 0,
-    id: uuidv4(),
+    id: createId(),
 }]
 
 export const ComiteeHistoryContext = createContext<{ comiteeHistory: ComiteeHistoryItem | null; setComiteeHistory: React.Dispatch<React.SetStateAction<ComiteeHistoryItem | null>> } | null>(null);
 
 export const ComiteeHistoryProvider = ({ children }: { children: ReactNode }) => {
-    const [comiteeHistory, setComiteeHistory] = useState<ComiteeHistoryItem | null>(null);
+    const [comiteeHistory, setComiteeHistory] = useState<ComiteeHistoryItem | null>(initialComiteeHistoryVal);
     return <ComiteeHistoryContext.Provider value={{ comiteeHistory, setComiteeHistory }}>{children}</ComiteeHistoryContext.Provider>;
 };
 
@@ -128,7 +130,7 @@ export const initialGKMHistoryVal = {
 export const GKMHistoryContext = createContext<{ gkmHistory: GKMHistoryItem | null; setGkmHistory: React.Dispatch<React.SetStateAction<GKMHistoryItem | null>> } | null>(null);
 
 export const GKMHistoryProvider = ({ children }: { children: ReactNode }) => {
-    const [gkmHistory, setGkmHistory] = useState<GKMHistoryItem | null>(null);
+    const [gkmHistory, setGkmHistory] = useState<GKMHistoryItem | null>(initialGKMHistoryVal);
     return <GKMHistoryContext.Provider value={{ gkmHistory, setGkmHistory }}>{children}</GKMHistoryContext.Provider>;
 };
 
@@ -151,7 +153,7 @@ export const initialMentorWantedVal = {
 export const MentorWantedContext = createContext<{ mentorWanted: MentorWanted | null; setMentorWanted: React.Dispatch<React.SetStateAction<MentorWanted | null>> } | null>(null);
 
 export const MentorWantedProvider = ({ children }: { children: ReactNode }) => {
-    const [mentorWanted, setMentorWanted] = useState<MentorWanted | null>(null);
+    const [mentorWanted, setMentorWanted] = useState<MentorWanted | null>(initialMentorWantedVal);
     return <MentorWantedContext.Provider value={{ mentorWanted, setMentorWanted }}>{children}</MentorWantedContext.Provider>;
 };
 
@@ -160,21 +162,39 @@ export const useMentorWanted = () => useContext(MentorWantedContext);
 // =====================================================
 
 export const initialCareerOfMyChoiceVal = {
-    short: "",
-    long: ""
+    short: null,
+    long: null
 }
 
 // FROM BACKEND
 export type empData = {
-    nIK: number| null;
-    name: string| null;
-    TMK: Date| null;
-    birthdate: Date| null;
-    gender: number| null;
-    educationLevel: string| null;
-    schColName: string| null;
-    major: String| null;
+    nomorIndukKaryawan: string | null;
+    namaKaryawan: string | null;
+    tanggalLahir: Date | null;
+    tanggalMasukKerja: Date | null;
+    gender: string | null;
+    personnelArea: string | null;
+    position: number | null;
+    personnelSubarea: string | null;
+    levelPosition: string | null;
+    age: number | null;
+    lengthOfService: number | null;
+    pend: string | null;
+    namaSekolah: string | null;
+    namaJurusan: string | null;
+    BestEmployee: number | null;
+    formFilled: number | null;
+    questionnaire: number | null;
+    createdAt: Date | null;
+    lastUpdatedAt: Date | null;
 }
+
+export const EmpDataContext = createContext<{ empData: empData | null; setEmpData: React.Dispatch<React.SetStateAction<empData | null>> } | null >(null);
+export const EmpDataProvider = ({ children }: { children: ReactNode }) => {
+    const [empData, setEmpData] = useState<empData | null>(null);
+    return <EmpDataContext.Provider value={{ empData, setEmpData }}>{children}</EmpDataContext.Provider>;
+};
+export const useEmpData = () => useContext(EmpDataContext);
 
 
 // INPUT
@@ -183,10 +203,28 @@ export type empCareerChoiceData = {
     rotationWill:boolean | null;
     crossDeptWill: boolean | null;
 }
+export const EmpCareerChoiceContext = createContext<{ empCareerChoice: empCareerChoiceData | null; setEmpCareerChoice: React.Dispatch<React.SetStateAction<empCareerChoiceData | null>> } | null>(null);
+export const EmpCareerChoiceProvider = ({ children }: { children: ReactNode }) => {
+    const [empCareerChoice, setEmpCareerChoice] = useState<empCareerChoiceData | null>(null);
+
+return <EmpCareerChoiceContext.Provider value={{ empCareerChoice, setEmpCareerChoice }}>{children}</EmpCareerChoiceContext.Provider>;
+};
+export const useEmpCareerChoice = () => useContext(EmpCareerChoiceContext);
+
+
+
+
 export type CareerofMyChoice = { // MAKE DROPDOWN CHOICELIST FROM BACKEND
     short: string | null;
     long: string | null;
 };
+export const CareerofMyChoiceContext = createContext<{  careerOfMyChoice: CareerofMyChoice | null; setCareerOfMyChoice: React.Dispatch<React.SetStateAction<CareerofMyChoice | null>> } | null>(null);
+export const CareerOfMyChoiceProvider = ({ children }: { children: ReactNode }) => {
+    const [careerOfMyChoice, setCareerOfMyChoice] = useState<CareerofMyChoice | null>(initialCareerOfMyChoiceVal);
+    return <CareerofMyChoiceContext.Provider value={{ careerOfMyChoice, setCareerOfMyChoice }}>{children}</CareerofMyChoiceContext.Provider>;
+};
+export const useCareerofMyChoice = () => useContext(CareerofMyChoiceContext);
+
 
 // Start Here (urutan ngisi)
 
@@ -203,44 +241,12 @@ export const TrainingWantedProvider = ({ children }: { children: ReactNode }) =>
 
 
 export type BestEmployee = number;
-
-
-// Define Contexts
-export const EmpDataContext = createContext<{ empData: empData | null; setEmpData: React.Dispatch<React.SetStateAction<empData | null>> } | null >(null);
-export const EmpCareerChoiceContext = createContext<{ empCareerChoice: empCareerChoiceData | null; setEmpCareerChoice: React.Dispatch<React.SetStateAction<empCareerChoiceData | null>> } | null>(null);
 export const BestEmployeeContext = createContext<{ bestEmployee: BestEmployee | null; setBestEmployee: React.Dispatch<React.SetStateAction<BestEmployee | null>> } | null>(null);
-export const CareerofMyChoiceContext = createContext<{  careerOfMyChoice: CareerofMyChoice | null; setCareerOfMyChoice: React.Dispatch<React.SetStateAction<CareerofMyChoice | null>> } | null>(null);
-// Provider Components
-export const EmpDataProvider = ({ children }: { children: ReactNode }) => {
-    const [empData, setEmpData] = useState<empData | null>(null);
-    return <EmpDataContext.Provider value={{ empData, setEmpData }}>{children}</EmpDataContext.Provider>;
-};
-
-export const EmpCareerChoiceProvider = ({ children }: { children: ReactNode }) => {
-        const [empCareerChoice, setEmpCareerChoice] = useState<empCareerChoiceData | null>(null);
-
-    return <EmpCareerChoiceContext.Provider value={{ empCareerChoice, setEmpCareerChoice }}>{children}</EmpCareerChoiceContext.Provider>;
-};
-
 export const BestEmployeeProvider = ({ children }: { children: ReactNode }) => {
-    const [bestEmployee, setBestEmployee] = useState<BestEmployee | null>(null);
+    const [bestEmployee, setBestEmployee] = useState<BestEmployee | null>(0);
     return <BestEmployeeContext.Provider value={{ bestEmployee, setBestEmployee }}>{children}</BestEmployeeContext.Provider>;
 };
-
-export const CareerOfMyChoiceProvider = ({ children }: { children: ReactNode }) => {
-    const [careerOfMyChoice, setCareerOfMyChoice] = useState<CareerofMyChoice | null>(null);
-    return <CareerofMyChoiceContext.Provider value={{ careerOfMyChoice, setCareerOfMyChoice }}>{children}</CareerofMyChoiceContext.Provider>;
-};
-
-
-// Custom Hooks for Each Context
-export const useEmpData = () => useContext(EmpDataContext);
-export const useEmpCareerChoice = () => useContext(EmpCareerChoiceContext);
 export const useBestEmployee = () => useContext(BestEmployeeContext);
-export const useCareerofMyChoice = () => useContext(CareerofMyChoiceContext);
-
-
-export const formConditionaContext = createContext(null);
 
 
 // Combined Provider to Wrap the Entire App

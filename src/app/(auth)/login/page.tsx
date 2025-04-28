@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { bitter } from "@/components/ui/fonts";
 import { signInAction } from "@/lib/signInAction";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation"; 
 
 export default function login() {
 
@@ -72,7 +73,7 @@ export default function login() {
                         className="bg-blue-500 text-white text-lg font-semibold py-2 px-4 rounded-md w-full md:w-[65%] hover:bg-blue-700">
                         Log In
                     </button>
-                    <a className="text-xs mt-1 self-start md:self-center md:text-sm text-blue-600">Forget password?</a>
+                    {/* <a className="text-xs mt-1 self-start md:self-center md:text-sm text-blue-600">Forget password?</a> */}
                 </div>
             </form>
         </div>

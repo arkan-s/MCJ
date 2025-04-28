@@ -1,5 +1,5 @@
 'use client'
-import AddFileEmployeeExcel from "@/components/ui/addFile/AddFile"
+import { AddFile } from "@/components/ui/addFile/AddFile"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
@@ -100,14 +100,15 @@ export default function AddData(){
 
                             {/* Footer with Close Button */}
                             <AlertDialogFooter className="flex-shrink-0">
+                                <AlertDialogAction className="border-2 border-zinc-700">Download Template</AlertDialogAction>
                                 <AlertDialogCancel className="border-2 border-zinc-700">Close</AlertDialogCancel>
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
 
                 </div>
-                <AddFileEmployeeExcel>
-                </AddFileEmployeeExcel>
+                <AddFile url={"/EmployeeUsers"}>
+                </AddFile>
                 <div className="w-[80%] flex flex-col justify-between items-center py-4">
                     <Button className="self-end bg-blue-500 hover:bg-blue-300" variant="default" size="lg" onClick={()=>handleNavigation("/hr/accountcontrol/addaccount/employee")}>
                         Tambah Secara Individual

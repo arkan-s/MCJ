@@ -4,52 +4,100 @@ import { useState, useEffect, useId } from "react";
 import * as contextHook from "@/hooks/context/formcontext"
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
-import { bitter } from "@/components/ui/fonts";
 import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { z } from "zod"
-import { v4 as uuidv4 } from "uuid";
+import { createId } from "@paralleldrive/cuid2";
+import DeleteButton from "@/app/employee/form/DeleteButton";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+import { branch, department, getCareerPath, level, position } from "@/utils/fetchData";
+import { useQuery } from "@tanstack/react-query";
 
 // import * as formValidContext from "@/app/employee/form/FormValidationContext"
 
 export function SelfCareerHistoryForm(){
-    const [positions, setPositions] = useState<{ namaPosition: string }[]>([]);
-    const [levels, setLevels] = useState<any>([]);
-    const [branches, setBranches] = useState<any>([]);
-    const [depts, setDepts] = useState<any>([]);
-    useEffect(() => {
-        fetch("/api/position") // Ganti dengan URL API backend
-            .then((response) => response.json()) // Parse response menjadi JSON
-            .then((data) => setPositions(data)) // Simpan data ke state
-            .catch((error) => console.error("Error fetching positions:", error));
-        fetch("/api/level")
-            .then((response) => response.json()) // Parse response menjadi JSON
-            .then((data) => setLevels(data)) // Simpan data ke state
-            .catch((error) => console.error("Error fetching levels:", error));
-        fetch("/api/branch")
-            .then((response) => response.json()) // Parse response menjadi JSON
-            .then((data) => setBranches(data)) // Simpan data ke state
-            .catch((error) => console.error("Error fetching branches:", error));
-        fetch("/api/dept")
-            .then((response) => response.json()) // Parse response menjadi JSON
-            .then((data) => setDepts(data)) // Simpan data ke state
-            .catch((error) => console.error("Error fetching depts", error));
-    }, []);
+
+    const { careerHistory, setCareerHistory } = contextHook.useCareerHistory()!;
     const { data: session, status } = useSession();
     const nik = session?.user.nik;
 
-    const { careerHistory, setCareerHistory } = contextHook.useCareerHistory()!;
-    useEffect(()=>{
-        fetch(`/api/datakaryawan/${nik}/datariwayatkarir`)
-        .then((response) => response.json())
-        .then(data=>setCareerHistory([{...data, id: data.idCareerHistory}]))
-        .catch((error: any)=>console.error("Error fetching user's career history", error))
-    }, []);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [deleteUnable, setUnableDelete] = useState(false);
+
+    const { data: careerData, isLoading: careerLoading, isError: careerError } = useQuery({
+        queryKey: ["careerHistory", nik],
+        queryFn: async () => {
+            const res = await fetch(`/api/datakaryawan/${nik}/datariwayatkarir`);
+            if (!res.ok) {
+                throw new Error("Failed to fetch career history data");
+            }
+            return await res.json();
+        },
+        retry: 3,
+        retryDelay: attemptIndex => attemptIndex * 1500,
+        enabled: !!nik,
+    });
+    
+    useEffect(() => {
+        if (careerData) {
+            setCareerHistory([{...careerData[0], position: String(careerData[0].position), tanggalMulai: new Date(careerData[0].tanggalMulai)}]);
+        } else if (careerError) {
+            setCareerHistory([
+            { ...contextHook.initialCareerHistoryVal[0], status: 1 },
+            ]);
+        }
+        setIsLoading(false);
+    }, [careerData, careerError]);
+
+    const { data: branchData, isLoading: branchLoading, isError: branchError } = useQuery({
+        queryKey: ["cabang"],
+        queryFn: branch,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,
+        
+    });
+
+    const { data: departmentData, isLoading: departmentLoading, isError: departmentError } = useQuery({
+        queryKey: ["department"],
+        queryFn: department,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,        
+    });
+
+    const { data: positionData, isLoading: positionLoading, isError: positionError } = useQuery({
+        queryKey: ["position"],
+        queryFn: position,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity, 
+    });
+
+    const { data: levelData, isLoading: levelLoading, isError: levelError } = useQuery({
+        queryKey: ["level"],
+        queryFn: level,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity, 
+    });
     
     const createCareerHistory = () => {
         setCareerHistory(careerHistory === null ?
             contextHook.initialCareerHistoryVal :
-            [...careerHistory, {...contextHook.initialCareerHistoryVal[0], id: uuidv4()}]
+            [...careerHistory, {...contextHook.initialCareerHistoryVal[0], id: createId()}]
         )
     }
     const updateCareerHistory = (valString: string = "", valDate: Date | null, whatdata: string, indexComp: string)=>{
@@ -98,174 +146,272 @@ export function SelfCareerHistoryForm(){
             return setCareerHistory(newCareerHistory === undefined ? contextHook.initialCareerHistoryVal : newCareerHistory)
         }
     const removeCareerHistory = (index:string) => {
-        setCareerHistory(prevCareerHistory => 
-            prevCareerHistory ? prevCareerHistory.filter((_, idx) => _.id !== index) : []
-        );
+        const check = careerHistory?.find((e)=>e.id === index);
+        if(check?.status===1){
+            setUnableDelete(true);
+        }else{
+            setCareerHistory(prevCareerHistory => 
+                prevCareerHistory ? prevCareerHistory.filter((_, idx) => _.id !== index) : []
+            );
+        }
     }
-
-    
 
 
 
     function CHCard({indexComp}:{indexComp:string}){
-        const [tempValue, setTempValue] = useState(careerHistory?.find((e)=>e.id === indexComp)?.tanggalMulai || undefined);        
-        const [tempEValue, setTempEValue] = useState(careerHistory?.find((e)=>e.id === indexComp)?.tanggalBerakhir || undefined);  
+        const [tempValue, setTempValue] = useState(careerHistory?.find((e) => e.id === indexComp)?.tanggalMulai || undefined);
+        const [tempEValue, setTempEValue] = useState(careerHistory?.find((e) => e.id === indexComp)?.tanggalBerakhir || undefined);
         const idunique = useId();
-        console.log(indexComp);
+        const [localPositions, setLocalPositions] = useState<{idPosition: number, namaPosition: string, dept: string}[] | []>([]);
+        const currentDept = careerHistory?.find((e) => e.id === indexComp)?.personnelSubarea;
+
+        useEffect(() => {
+            if (!positionLoading && !positionError && positionData) {
+                const filteredPositions = positionData.filter((pos: any) => pos.dept === currentDept);
+                setLocalPositions(filteredPositions);
+            }
+        }, [positionData, positionLoading, positionError, currentDept]);
+        
+
+        const handleDeptChange = (value: string) => {
+            const trimmedValue = value.trim();
+            if (trimmedValue !== "") {
+                updateCareerHistory(trimmedValue, new Date(), "dept", indexComp);
+            }
+        };
+
+        const handlePositionChange = (value: string) => {
+            const trimmedValue = value.trim();
+            if (trimmedValue !== "") {
+                updateCareerHistory(trimmedValue, new Date(), "posisi", indexComp);
+            }
+        };
+
+        const handleStartDateChange = (dateString: string) => {
+            if (isNaN(Date.parse(dateString))) {
+                updateCareerHistory("", null, "startDate", indexComp);
+            } else {
+                updateCareerHistory("", new Date(dateString), "startDate", indexComp);
+            }
+        };
+
+        const handleEndDateChange = (dateString: string) => {
+            if (isNaN(Date.parse(dateString))) {
+                updateCareerHistory("", null, "endDate", indexComp);
+            } else {
+                updateCareerHistory("", new Date(dateString), "endDate", indexComp);
+            }
+            
+        };
+
         return (
             <div className="flex flex-col md:flex-row md:items-center w-full bg-blue-100 my-2 p-2">
                 <div className="flex flex-col w-full md:w-11/12">
-                    <div className="flex flex-wrap justify-between gap-1"> {/*ABOUT POSITION */} {/*AMBIL DATA BUAT BIKIN DROPDOWN LIST BUAT POSISI DAN CABANG*/}
+                    <div className="flex flex-wrap justify-between gap-1">
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label htmlFor={`position${idunique}`}><b>Position</b></label>
-                            <Select 
+                            <label htmlFor={`branches${idunique}`}><b>Cabang</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup></label>
+                            <Select
                                 onValueChange={(value) => {
                                     const trimmedValue = value.trim();
-                                    if (trimmedValue === "") {
-                                        return;
+                                    if (trimmedValue !== "") {
+                                        updateCareerHistory(trimmedValue, new Date(), "cabang", indexComp);
                                     }
-                                    updateCareerHistory(trimmedValue, new Date(), "posisi", indexComp);
                                 }}
-                                defaultValue=""
+                                defaultValue={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelArea || ""}
                             >
-                                <SelectTrigger className="border-2 border-zinc-300 w-full"> 
-                                    <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.position || "Pilih Posisi"}/>
+                                <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                    <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelArea || "Pilih Cabang"} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {positions.map((pos, index) => (
-                                        <SelectItem key={index} value={pos.namaPosition}>{pos.namaPosition}</SelectItem>
-                                    ))}
+                                    {branchLoading ? 
+                                        (
+                                            <div className="flex justify-center items-center">
+                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                            </div>
+                                        ) : branchError ? (
+                                            <div className="flex justify-center items-center">
+                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                            </div>
+                                        ) : (
+                                            branchData.map((br: any, index: any) => (
+                                                <SelectItem key={index} value={br.idBranch}>{br.namaBranch}</SelectItem>
+                                            ))
+                                        )
+                                    }
                                 </SelectContent>
                             </Select>
                         </div>
 
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label htmlFor={`levelPosition${idunique}`}><b>Level</b></label>
-                            <Select 
+                            <label htmlFor={`depts${idunique}`}><b>Department</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup></label>
+                            <Select
+                                onValueChange={handleDeptChange}
+                                defaultValue={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelSubarea || ""}
+                            >
+                                <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                    <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelSubarea || "Pilih Department"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {departmentLoading ? 
+                                        (
+                                            <div className="flex justify-center items-center">
+                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                            </div>
+                                        ) : departmentError ? (
+                                            <div className="flex justify-center items-center">
+                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                            </div>
+                                        ) : (
+                                            departmentData.map((dept: any, index: any) => (
+                                                <SelectItem key={index} value={dept.idDepartment}>{dept.namaDepartment}</SelectItem>
+                                            ))
+                                        )
+                                    }
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex flex-col gap-1 w-full md:w-[45%]">
+                            <label htmlFor={`position${idunique}`}><b>Position</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup></label>
+                            <Select
+                                onValueChange={handlePositionChange}
+                                defaultValue={careerHistory && careerHistory.find((e) => e.id === indexComp)?.position || ""}
+                                disabled={!currentDept} // Disable if no department is selected
+                            >
+                                <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                    <SelectValue placeholder={careerHistory && String(careerHistory.find((e) => e.id === indexComp)?.position) || "Pilih Posisi"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {positionLoading ? 
+                                        (
+                                            <div className="flex justify-center items-center">
+                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                            </div>
+                                        ) : positionError ? (
+                                            <div className="flex justify-center items-center">
+                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                            </div>
+                                        ) : (
+                                            localPositions.map((pos: any, index:any) => (
+                                                <SelectItem key={index} value={String(pos.idPosition)}>{pos.namaPosition}</SelectItem>
+                                            ))
+                                        )
+                                    }
+                                </SelectContent>
+                            </Select>
+                            {!currentDept && <p className="text-sm text-gray-500 italic">Pilih Department terlebih dahulu</p>}
+                        </div>
+
+                        <div className="flex flex-col gap-1 w-full md:w-[45%]">
+                            <label htmlFor={`levelPosition${idunique}`}><b>Level</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup></label>
+                            <Select
                                 onValueChange={(value) => {
                                     const trimmedValue = value.trim();
                                     updateCareerHistory(trimmedValue, new Date(), "level", indexComp);
                                 }}
-                                defaultValue=""
+                                defaultValue={careerHistory && careerHistory.find((e) => e.id === indexComp)?.levelPosition || ""}
                             >
-                                <SelectTrigger className="border-2 border-zinc-300 w-full"> {/* Pastikan SelectTrigger juga w-full */}
+                                <SelectTrigger className="border-2 border-zinc-300 w-full">
                                     <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.levelPosition || "Pilih level"} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {levels.map((lev:any, index:any) => (
-                                        <SelectItem key={index} value={lev.namaLevel}>{lev.namaLevel}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label htmlFor={`branches${idunique}`}><b>Cabang</b></label>
-                            <Select 
-                                onValueChange={(value) => {
-                                    const trimmedValue = value.trim();
-                                    if (trimmedValue === "") {
-                                        return;
+                                {levelLoading ? 
+                                        (
+                                            <div className="flex justify-center items-center">
+                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                            </div>
+                                        ) : levelError ? (
+                                            <div className="flex justify-center items-center">
+                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                            </div>
+                                        ) : (
+                                            levelData.map((dept: any, index: any) => (
+                                                <SelectItem key={index} value={dept.idLevel}>{dept.namaLevel}</SelectItem>
+                                            ))
+                                        )
                                     }
-                                    updateCareerHistory(trimmedValue, new Date(), "cabang", indexComp);
-                                }}
-                                defaultValue=""
-                            >
-                                <SelectTrigger className="border-2 border-zinc-300 w-full"> {/* Pastikan SelectTrigger juga w-full */}
-                                    <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelArea || "Pilih Cabang"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {branches.map((br:any, index:any) => (
-                                        <SelectItem key={index} value={br.namaBranch}>{br.namaBranch}</SelectItem>
-                                    ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-
-                        <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label htmlFor={`depts${idunique}`}><b>Department</b></label>
-                            <Select 
-                                onValueChange={(value) => {
-                                    const trimmedValue = value.trim();
-                                    if (trimmedValue === "") {
-                                        return;
-                                    }
-                                    updateCareerHistory(trimmedValue, new Date(), "dept", indexComp);
-                                }}
-                                defaultValue=""
-                            >
-                                <SelectTrigger className="border-2 border-zinc-300 w-full"> {/* Pastikan SelectTrigger juga w-full */}
-                                    <SelectValue placeholder={careerHistory && careerHistory.find((e) => e.id === indexComp)?.personnelSubarea || "Pilih Department"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {depts.map((dept:any, index:any) => (
-                                        <SelectItem key={index} value={dept.namaDepartment}>{dept.namaDepartment}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-
                         </div>
                     </div>
-                    <div className={`${bitter.className} flex justify-between w-full md:flex-row flex-col`}> {/*ABOUT TIME */}
+                    <div className={`flex justify-between w-full md:flex-row flex-col`}>
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`tanggalMulai${idunique}`}>
-                                <b>Tanggal Mulai</b>
+                                <b>Tanggal Mulai</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="date"
                                 id={`tanggalMulai${idunique}`}
                                 name={`tanggalMulai${idunique}`}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500"
-                                value={tempValue === undefined ? "": !isNaN(Date.parse(tempValue.toISOString().split("T")[0])) ? tempValue.toISOString().split("T")[0] : "" }
+                                value={tempValue === undefined ? "" : !isNaN(Date.parse(tempValue.toISOString().split("T")[0])) ? tempValue.toISOString().split("T")[0] : ""}
                                 onChange={(e) => setTempValue(e.target.value === "" ? undefined : new Date(e.target.value))}
-                                onBlur={
-                                    (e) => {
-                                        if(isNaN(Date.parse(e.target.value))){
-                                            updateCareerHistory("", null, "startDate", indexComp);
-                                        } else {
-                                            updateCareerHistory("", new Date(e.target.value), "startDate", indexComp);
-                                        }
-                                    }
-                                }
+                                onBlur={(e) => handleStartDateChange(e.target.value)}
+                                
                             />
-
+                            {!tempValue && <p className="text-sm text-red-500 italic">Isilah awal masuk kerja pada posisi ini!</p>}
                         </div>
 
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`tanggalBerakhir${idunique}`}>
-                                <b>Tanggal Berakhir</b>
+                                <b>Tanggal Berakhir</b>{careerHistory?.find((e)=>e.id === indexComp)?.status !== 1 && <sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup> }
                             </label>
                             <input
                                 type="date"
                                 id={`tanggalBerakhir${idunique}`}
                                 name={`tanggalBerakhir${idunique}`}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500"
-                                value={tempEValue === undefined ? "": !isNaN(Date.parse(tempEValue.toISOString().split("T")[0])) ? tempEValue.toISOString().split("T")[0] : "" }
+                                value={tempEValue === undefined ? "" : !isNaN(Date.parse(tempEValue.toISOString().split("T")[0])) ? tempEValue.toISOString().split("T")[0] : ""}
                                 onChange={(e) => setTempEValue(e.target.value === "" ? undefined : new Date(e.target.value))}
-                                onBlur={
-                                    (e) => {
-                                        if(isNaN(Date.parse(e.target.value))){
-                                            updateCareerHistory("", null, "endDate", indexComp);
-                                        } else {
-                                            updateCareerHistory("", new Date(e.target.value), "endDate", indexComp);
-                                        }
-                                    }
-                                }
+                                onBlur={(e) => handleEndDateChange(e.target.value)}
                             />
+                            {!tempEValue && careerHistory?.find((e) => e.id === indexComp)?.status !== 1 && <p className="text-sm text-red-500 italic">Isilah kapan anda meninggalkan posisi ini!</p>}
                         </div>
                     </div>
                 </div>
                 <div className="flex justify-end items-end md:items-center md:justify-center w-full md:w-1/12 md:mt-0 mt-2">
-                    
-                        <Button type="button" variant="destructive" size="icon" onClick={() => {
-                            removeCareerHistory(indexComp);
-                        }}>
-                            <Trash size={16} />
-                        </Button>
-                    
+                    <DeleteButton Deletefn={removeCareerHistory} indexDelete={indexComp}>
+                    </DeleteButton>
+                    {careerHistory?.find((e) => e.id === indexComp)?.status === 1 && 
+                    (<AlertDialog open={deleteUnable} onOpenChange={setUnableDelete}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle className="font-extrabold text-xl">Tidak boleh dihapus</AlertDialogTitle>
+                            <AlertDialogDescription className="text-sm">
+                                Data ini merupakan data karir anda sekarang, tidak bisa menghapus data ini. Terima kasih.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel className="border-2 border-zinc-700" >Tutup</AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>)}
                 </div>
             </div>
-        )
+        );
+    }
+
+
+    if (isLoading || careerLoading || branchLoading || departmentLoading || positionLoading || levelLoading) {
+        return (
+            <div className="flex flex-col justify-center items-center w-full h-fit px-2 pb-2">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                <p className="text-lg font-semibold">Loading data...</p>
+            </div>
+        );
+    }
+    
+    if (careerError || branchError || departmentError || positionError || levelError) {
+        return (
+            <div className="flex flex-col justify-center items-center w-full h-fit px-2 pb-2">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                <p className="text-lg font-semibold">Please wait, we are still processing...</p>
+            </div>
+        );                      
     }
 
     return (
@@ -323,7 +469,7 @@ export function SelfOrgIntHistoryForm() {
         setOrgIntHistory(
             orgIntHistory === null ?
                 contextHook.initialOrgIntVal : 
-                [...orgIntHistory, {...contextHook.initialOrgIntVal[0], id: uuidv4()}]
+                [...orgIntHistory, {...contextHook.initialOrgIntVal[0], id: createId()}]
         )
     }
 
@@ -363,15 +509,16 @@ export function SelfOrgIntHistoryForm() {
             prevOrgIntHistory ? prevOrgIntHistory.filter((_) => _.id !== index) : []
         );
     }
+    console.log(orgIntHistory);
 
 
     function OICard({indexComp}:{indexComp:string}){
         return (
             <div className="flex flex-col md:flex-row md:items-center w-full bg-blue-100 my-2 p-2">
                 <div className="flex flex-col w-full md:w-11/12">
-                    <div className={`${bitter.className} flex justify-between w-full md:flex-row md:flex-wrap flex-col`}> {/*ABOUT TIME */}
+                    <div className={`flex justify-between w-full md:flex-row md:flex-wrap flex-col`}> {/*ABOUT TIME */}
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label className="leading-loose" htmlFor={`name${String(indexComp)}`}> <b>Nama Organisasi</b> </label>
+                            <label className="leading-loose" htmlFor={`name${String(indexComp)}`}> <b>Nama Organisasi</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup> </label>
                             <input
                                 type="text"
                                 id={`name${String(indexComp)}`}
@@ -386,7 +533,7 @@ export function SelfOrgIntHistoryForm() {
                         </div>
     
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label className="leading-loose" htmlFor={`jabatan${String(indexComp)}`}> <b>Posisi</b> </label>
+                            <label className="leading-loose" htmlFor={`jabatan${String(indexComp)}`}> <b>Posisi</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup> </label>
                             <input
                                 type="text"
                                 id={`jabatan${String(indexComp)}`}
@@ -400,7 +547,7 @@ export function SelfOrgIntHistoryForm() {
                         </div>
     
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                            <label className="leading-loose" htmlFor={`tahunMulai${String(indexComp)}`}> <b>Tahun Mulai</b> </label>
+                            <label className="leading-loose" htmlFor={`tahunMulai${String(indexComp)}`}> <b>Tahun Awal</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup> </label>
                             <input
                                 type="number"
                                 id={`tahunMulai${String(indexComp)}`}
@@ -412,21 +559,15 @@ export function SelfOrgIntHistoryForm() {
                                     }
                                     updateOrgInt("", new Date(), input, "startYear", indexComp)
                                 }}
-                                placeholder={orgIntHistory?.find((e)=>e.id === indexComp)?.startYear? String((orgIntHistory).find((e)=>e.id === indexComp)?.startYear): "Tahun acara"}
+                                placeholder={orgIntHistory?.find((e)=>e.id === indexComp)?.startYear? String((orgIntHistory).find((e)=>e.id === indexComp)?.startYear): "Tahun awal mengikuti organisasi"}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500"
                             />
                         </div>
                     </div>
                 </div>
                 <div className="flex justify-end items-end md:items-center md:justify-center w-full md:w-1/12 md:mt-0 mt-2">
-                    <Button type="button" variant="destructive" size="icon" onClick={() => 
-                        {
-                            removeOrgInt(indexComp);
-                        }
-
-                    }>
-                        <Trash size={16} />
-                    </Button>
+                    <DeleteButton Deletefn={removeOrgInt} indexDelete={indexComp}>
+                    </DeleteButton>
                 </div>
             </div>
         )
@@ -487,8 +628,8 @@ export function ProjectHistoryForm() {
     const createProject = () => {
         setProjectHistory(
             projectHistory === null ?
-                [{...contextHook.initialProjectHistoryVal[0], id: uuidv4()}] : 
-                [...projectHistory, {...contextHook.initialProjectHistoryVal[0], id: uuidv4()}]
+                [{...contextHook.initialProjectHistoryVal[0], id: createId()}] : 
+                [...projectHistory, {...contextHook.initialProjectHistoryVal[0], id: createId()}]
         )
     }
 
@@ -533,6 +674,7 @@ export function ProjectHistoryForm() {
             prevProjectHistory ? prevProjectHistory.filter((_) => _.id !== index) : []
         );
     }
+    console.log(projectHistory);
 
     
     function ProjectCard({ indexComp }:{indexComp:string}) {
@@ -542,7 +684,7 @@ export function ProjectHistoryForm() {
                     <div className="flex justify-between w-full md:flex-row md:flex-wrap flex-col">
                         <div className="flex flex-col gap-1 w-full">
                             <label className="leading-loose" htmlFor={`name${indexComp}`}>
-                                <b>Nama Proyek</b>
+                                <b>Nama Proyek</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="text"
@@ -557,13 +699,13 @@ export function ProjectHistoryForm() {
                         </div>
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`year${indexComp}`}>
-                                <b>Tahun</b>
+                                <b>Tahun</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="number"
                                 id={`year${indexComp}`}
                                 name={`year${indexComp}`}
-                                placeholder={projectHistory?.find((e)=>e.id === indexComp)?.year ? String((projectHistory).find((e)=>e.id === indexComp)?.year): "Tahun acara"}
+                                placeholder={projectHistory?.find((e)=>e.id === indexComp)?.year ? String((projectHistory).find((e)=>e.id === indexComp)?.year): "Tahun pengerjaan proyek"}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 onBlur={(e) => {
                                     let input: number = parseInt(e.target.value);
@@ -576,7 +718,7 @@ export function ProjectHistoryForm() {
                         </div>
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`peran${indexComp}`}>
-                                <b>Peran</b>
+                                <b>Peran</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="text"
@@ -591,7 +733,7 @@ export function ProjectHistoryForm() {
                         </div>
                         <div className="flex flex-col gap-1 w-full">
                             <label className="leading-loose" htmlFor={`shortDesc${indexComp}`}>
-                                <b>Short Desc</b>
+                                <b>Short Desc</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <textarea
                                 id={`shortDesc${indexComp}`}
@@ -607,12 +749,8 @@ export function ProjectHistoryForm() {
                     </div>
                 </div>
                 <div className="flex justify-end items-end md:items-center md:justify-center w-full md:w-1/12 md:mt-0 mt-2">
-                    <Button type="button" variant="destructive" size="icon" onClick={() => {
-                        removeProject(indexComp);
-                        
-                    }}>
-                        <Trash size={16} />
-                    </Button>
+                    <DeleteButton Deletefn={removeProject} indexDelete={indexComp}>
+                    </DeleteButton>
                 </div>
             </div>
         );
@@ -671,8 +809,8 @@ export function ComiteeHistoryForm() {
     
     const createComiteeHistory = () => {
         setComiteeHistory(comiteeHistory === null ?
-            [{...contextHook.initialComiteeHistoryVal[0], id: uuidv4()}] :
-            [...comiteeHistory, {...contextHook.initialComiteeHistoryVal[0], id: uuidv4()}]
+            [{...contextHook.initialComiteeHistoryVal[0], id: createId()}] :
+            [...comiteeHistory, {...contextHook.initialComiteeHistoryVal[0], id: createId()}]
         );
     };
 
@@ -703,6 +841,7 @@ export function ComiteeHistoryForm() {
             prevComiteeHistory ? prevComiteeHistory.filter((_, idx) => _.id !== index) : []
         );
     }
+    console.log(comiteeHistory);
 
     function ComiteeCard({ indexComp }:{indexComp:string}) {
         return (
@@ -711,7 +850,7 @@ export function ComiteeHistoryForm() {
                     <div className="flex justify-between w-full md:flex-row md:flex-wrap flex-col">
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`name${indexComp}`}>
-                                <b>Nama Acara</b>
+                                <b>Nama Acara</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="text"
@@ -727,13 +866,13 @@ export function ComiteeHistoryForm() {
                         </div>
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`year${indexComp}`}>
-                                <b>Tahun</b>
+                                <b>Tahun</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="number"
                                 id={`year${indexComp}`}
                                 name={`year${indexComp}`}
-                                placeholder={comiteeHistory?.find((e)=>e.id === indexComp)?.year ? String((comiteeHistory).find((e)=>e.id === indexComp)?.year): "Tahun acara"}
+                                placeholder={comiteeHistory?.find((e)=>e.id === indexComp)?.year ? String((comiteeHistory).find((e)=>e.id === indexComp)?.year): "Tahun keikutsertaan kepanitiaan"}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 onBlur={
                                     (e) => {
@@ -748,13 +887,13 @@ export function ComiteeHistoryForm() {
                         </div>
                         <div className="flex flex-col gap-1 w-full md:w-[45%]">
                             <label className="leading-loose" htmlFor={`jabatan${indexComp}`}>
-                                <b>Jabatan</b>
+                                <b>Jabatan</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                             </label>
                             <input
                                 type="text"
                                 id={`jabatan${indexComp}`}
                                 name={`jabatan${indexComp}`}
-                                placeholder={comiteeHistory?.find((e)=>e.id === indexComp)?.jabatan ? (comiteeHistory).find((e)=>e.id === indexComp)?.jabatan : "Nama posisi atau jabatan"}
+                                placeholder={comiteeHistory?.find((e)=>e.id === indexComp)?.jabatan ? (comiteeHistory).find((e)=>e.id === indexComp)?.jabatan : "Posisi atau jabatan dalam kepanitiaan"}
                                 className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 onBlur={(e) =>
                                     {
@@ -767,13 +906,8 @@ export function ComiteeHistoryForm() {
                     </div>
                 </div>
                 <div className="flex justify-end items-end md:items-center md:justify-center w-full md:w-1/12 md:mt-0 mt-2">
-                    <Button type="button" variant="destructive" size="icon" onClick={() => 
-                        {
-                            removeComiteeHistory(indexComp);
-                        }
-                    }>
-                        <Trash size={16} />
-                    </Button>
+                    <DeleteButton Deletefn={removeComiteeHistory} indexDelete={indexComp}>
+                    </DeleteButton>
                 </div>
             </div>
         );
@@ -832,14 +966,14 @@ export function TrainingWantedForm() {
     const { trainingWanted, setTrainingWanted } = contextHook.useTrainingWanted()!;
     
     const createTraining = () => {
-        setTrainingWanted(trainingWanted === null ? [{id: uuidv4(), name: ""}] : [...trainingWanted, {id: uuidv4(), name: ""}]);
+        setTrainingWanted(trainingWanted === null ? [{id: createId(), name: ""}] : [...trainingWanted, {id: createId(), name: ""}]);
     };
 
     const updateTraining = (valString = "", id: string) => {
         const newTrainingWanted = trainingWanted?.map((data) => (
             id === data.id ? { ...data, name: valString } : data
         ));
-        setTrainingWanted(newTrainingWanted ?? [{id: uuidv4(), name: ""}]);
+        setTrainingWanted(newTrainingWanted ?? [{id: createId(), name: ""}]);
     };
 
     const removeTraining = (id: string) => {
@@ -847,6 +981,7 @@ export function TrainingWantedForm() {
             prevTrainingWanted ? prevTrainingWanted.filter((e) => e.id !== id) : []
         );
     }
+    console.log(trainingWanted);
     
 
     function TrainingCard({ indexComp }: { indexComp: string}) {
@@ -859,7 +994,7 @@ export function TrainingWantedForm() {
                             type="text"
                             id={`training${indexComp}`}
                             name={`training${indexComp}`}
-                            placeholder={trainingItem ? trainingItem.name : "Judul atau topik pelatihan"}
+                            placeholder={trainingItem ? trainingItem.name : "Masukkan topik pelatihan"}
                             className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onBlur={(e) => {
                                 updateTraining(e.target.value, indexComp);
@@ -869,11 +1004,8 @@ export function TrainingWantedForm() {
                     </div>
                 </div>
                 <div className="flex justify-end items-end md:items-center md:justify-center w-full md:w-1/12 md:mt-0 mt-2">
-                    <Button type="button" variant="destructive" size="icon" onClick={() => {
-                        removeTraining(indexComp);}
-                        }>
-                        <Trash size={16} />
-                    </Button>
+                    <DeleteButton Deletefn={removeTraining} indexDelete={indexComp}>
+                    </DeleteButton>
                 </div>
             </div>
         );
@@ -943,12 +1075,13 @@ export function GKMHistoryForm() {
             }
         });
     };
+    console.log(gkmHistory);
     
     
 
     return (
         <div className="flex flex-col w-full h-fit px-2 pb-2">
-            `<form>
+            <form>
                 <div className="flex flex-col w-full bg-blue-100 my-2 p-2">
                     <div className="flex flex-col w-full">
                         <div className="flex justify-between w-full flex-col">
@@ -1001,22 +1134,29 @@ export function GKMHistoryForm() {
 
 
 export function MentorWantedForm() {
-    const [positions, setPositions] = useState<{ namaPosition: string }[]>([]);
-    const [branches, setBranches] = useState<any>([]);
-    useEffect(() => {
-    fetch("/api/position") // Ganti dengan URL API backend
-        .then((response) => response.json()) // Parse response menjadi JSON
-        .then((data) => setPositions(data)) // Simpan data ke state
-        .catch((error) => console.error("Error fetching positions:", error));
-    fetch("/api/branch") // Ganti dengan URL API backend
-    .then((response) => response.json()) // Parse response menjadi JSON
-    .then((data) => setBranches(data)) // Simpan data ke state
-    .catch((error) => console.error("Error fetching branch:", error));
-    }, [])
 
     const { mentorWanted, setMentorWanted } = contextHook.useMentorWanted()!;
+
+    const { data: branchData, isLoading: branchLoading, isError: branchError } = useQuery({
+        queryKey: ["cabang"],
+        queryFn: branch,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,
+        
+    });
+
+    // const { data: positionData, isLoading: positionLoading, isError: positionError } = useQuery({
+    //     queryKey: ["position"],
+    //     queryFn: position,
+    //     retry: 3, 
+    //     retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+    //     staleTime: Infinity, 
+    // });
+    console.log(mentorWanted);
+
     const updateMentor = (valString: string, field: keyof contextHook.MentorWanted) => {
-        setMentorWanted(prev => prev ? { ...prev, [field]: valString } : { name: "", jabatan: "", cabang: "" });
+        setMentorWanted(prev => prev ? { ...prev, [field]: valString } : {...{ name: "", jabatan: "", cabang: "" }, [field]: valString});
     };
 
     return (
@@ -1027,7 +1167,7 @@ export function MentorWantedForm() {
                         <div className="flex justify-between w-full md:flex-row md:flex-wrap flex-col">
                             <div className="flex flex-col gap-1 w-full">
                                 <label className="leading-loose" htmlFor="mentorName">
-                                    <b>Nama Mentor</b>
+                                    <b>Nama Mentor</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                                 </label>
                                 <input
                                     type="text"
@@ -1042,40 +1182,10 @@ export function MentorWantedForm() {
                                     }
                                 />
                             </div>
-                            <div className="flex flex-col gap-1 w-full md:w-[45%]">
-                                <label className="leading-loose" htmlFor="mentorJabatan">
-                                    <b>Jabatan</b>
-                                </label>
-                                <Select 
-                                    onValueChange={(value) => {
-                                        const trimmedValue = value.trim();
-                                        if (trimmedValue === "") {
-                                            return;
-                                        }
-                                        updateMentor(trimmedValue, "jabatan");
-                                    }}
-                                    onOpenChange={(isOpen)=>{
-                                        if(!isOpen){
-                                            if (mentorWanted?.jabatan === "") {
-                                            }
-                                        }
-                                    }}
-                                    defaultValue=""
-                                    
-                                >
-                                    <SelectTrigger className="border-2 border-zinc-300 w-full"> {/* Pastikan SelectTrigger juga w-full */}
-                                        <SelectValue placeholder={mentorWanted ? mentorWanted.jabatan === "" ? "Pilih posisi mentor" : mentorWanted.jabatan : "Pilih posisi mentor"}/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {positions.map((pos, index) => (
-                                            <SelectItem key={index} value={pos.namaPosition}>{pos.namaPosition}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            
                             <div className="flex flex-col gap-1 w-full md:w-[45%]">
                                 <label className="leading-loose" htmlFor="mentorCabang">
-                                    <b>Cabang</b>
+                                    <b>Cabang</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
                                 </label>
                                 <Select 
                                     onValueChange={(value) => {
@@ -1093,11 +1203,80 @@ export function MentorWantedForm() {
                                         <SelectValue placeholder={mentorWanted ? mentorWanted.cabang === "" ? "Pilih cabang mentor" : mentorWanted.cabang : "Pilih cabang mentor"}/>
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {branches.map((br:any, index:any) => (
-                                            <SelectItem key={index} value={br.namaBranch}>{br.namaBranch}</SelectItem>
-                                        ))}
+                                        {branchLoading ? 
+                                            (
+                                                <div className="flex justify-center items-center">
+                                                    <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                    <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                                </div>
+                                            ) : branchError ? (
+                                                <div className="flex justify-center items-center">
+                                                    <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                                </div>
+                                            ) : (
+                                                branchData.map((br: any, index: any) => (
+                                                    <SelectItem key={index} value={br.idBranch}>{br.namaBranch}</SelectItem>
+                                                ))
+                                            )
+                                        }
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            <div className="flex flex-col gap-1 w-full md:w-[45%]">
+                                <label className="leading-loose" htmlFor="mentorJabatan">
+                                    <b>Jabatan</b><sup className="text-red-500 text-extrabold text-base pb-0 mb-0 leading-tight">*</sup>
+                                </label>
+                                <input
+                                    type="text"
+                                    id={`mentorJabatan`}
+                                    name={`mentorJabatan`}
+                                    onBlur={(e) => {
+                                        updateMentor(e.target.value, "jabatan");
+                                    }}
+                                    placeholder={mentorWanted ? mentorWanted.jabatan === "" ? "Isikan level, posisi dari mentor. (contoh : Manager - ODPD Manager)" : mentorWanted.jabatan : "Isikan level, posisi dari mentor. (contoh : Manager - ODPD Manager)"}
+                                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500"
+                                    defaultValue=""
+                                />
+                                {/* <Select 
+                                    onValueChange={(value) => {
+                                        const trimmedValue = value.trim();
+                                        if (trimmedValue === "") {
+                                            return;
+                                        }
+                                        updateMentor(trimmedValue, "jabatan");
+                                    }}
+                                    onOpenChange={(isOpen)=>{
+                                        if(!isOpen){
+                                            if (mentorWanted?.jabatan === "") {
+                                            }
+                                        }
+                                    }}
+                                    defaultValue=""
+                                    
+                                >
+                                    <SelectTrigger className="border-2 border-zinc-300 w-full"> {/* Pastikan SelectTrigger juga w-full 
+                                        <SelectValue placeholder={mentorWanted ? mentorWanted.jabatan === "" ? "Pilih posisi mentor" : mentorWanted.jabatan : "Pilih posisi mentor"}/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {positionLoading ? 
+                                        (
+                                            <div className="flex justify-center items-center">
+                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                            </div>
+                                        ) : positionError ? (
+                                            <div className="flex justify-center items-center">
+                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                            </div>
+                                        ) : (
+                                            localPositions.map((pos: any, index:any) => (
+                                                <SelectItem key={index} value={String(pos.idPosition)}>{pos.namaPosition}</SelectItem>
+                                            ))
+                                        )
+                                    }
+                                    </SelectContent>
+                                </Select> */}
                             </div>
                         </div>
                     </div>
@@ -1132,10 +1311,11 @@ export function EmpCareerChoiceComponents(){
             return { ...prev, crossDeptWill: val };
         });
     };
+    console.log(empCareerChoice);
 
     function EmpCareerChoiceComponent(){
         return (
-            <div className={`${bitter.className} block flex-col gap-5 shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
+            <div className={`block flex-col gap-5 shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
                 <div>
                     <h3 className="mb-1 mt-3 text-lg font-medium text-gray-900">Are you interested to take your career journey to the next level?</h3>
                     <div className="flex justify-around">
@@ -1181,77 +1361,141 @@ export function EmpCareerChoiceComponents(){
 }
 
 export function CareerofMyChoiceComponents(){
+    const {data: session} = useSession();
+    const { careerOfMyChoice, setCareerOfMyChoice } = contextHook.useCareerofMyChoice()!;
+    const { empCareerChoice, setEmpCareerChoice } = contextHook.useEmpCareerChoice()!;
+
+    const { data: careerPathData, isLoading: careerPathLoading, isError: careerPathError } = useQuery({
+        queryKey: ["careerpath"],
+        queryFn: getCareerPath,
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,
+    });
+    const [ shortTerms, setShortTerms ] = useState<any[] | null>(null);
+    const [ longTerms, setLongTerms ] = useState<any[] | null>(null)
+    
+    useEffect(()=>{
+        let data;
+        if (empCareerChoice?.crossDeptWill === null) {
+            return;
+        }
+        if (empCareerChoice?.crossDeptWill === false) {
+            data = careerPathData.filter((e: any)=> e.startCareer.dept === session?.user.dept) 
+        }else{
+            data = careerPathData
+        }
+        setShortTerms(data);
+    }
+    ,[empCareerChoice, careerPathData])
+    useEffect(()=>{
+        let data;
+        if(careerOfMyChoice?.short === null){
+            return;
+        }else if(careerOfMyChoice?.short !== null){
+            data = careerPathData.filter((e: any)=> e.existing === careerPathData.find((e: any)=> e.idCP === careerOfMyChoice?.short).future);
+        }
+        setLongTerms(data);
+    }, [careerOfMyChoice?.short, empCareerChoice, careerPathData])
+    
+
+
+    const handleOnBlur = (val: string = "", whatdata: string)=>{
+        switch(whatdata){
+            case "short":
+                setCareerOfMyChoice((prev) => {
+                    if (!prev) return {...contextHook.initialCareerOfMyChoiceVal, short: val};
+                    return { ...prev, short: val };
+                });
+                break;
+            case "long":
+                setCareerOfMyChoice((prev) => {
+                    if (!prev) return {...contextHook.initialCareerOfMyChoiceVal, long: val};
+                    return { ...prev, long: val };
+                });
+                break;
+        }
+    }
+
+    console.log(careerOfMyChoice);
     function CareerOfMyChoiceComp(){
         return (
-            <div className={`${bitter.className} block flex-col shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
+            <div className={`block flex-col shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
                 <div className="flex flex-wrap justify-between gap-1 mb-5"> 
                     <div className="flex flex-col gap-1 w-full">
                         <label htmlFor={`short`}><b>Short Term Career Plan</b></label>
-                        <input
-                            type="text"
-                            id={`short`}
-                            name={`short`}
-                            className="border border-gray-300 rounded-md p-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder={
-                                !careerOfMyChoice || !careerOfMyChoice.short || careerOfMyChoice.short === "" ?
-                                    "Rencana karir untuk 1-3 tahun?" :
-                                    careerOfMyChoice.short || "Rencana karir untuk 1-3 tahun?"
-                            }
-                            onBlur={
-                                (e)=>{
-                                    const previousValue = e.target.defaultValue; 
-                                    const trimmedValue = e.target.value.trim(); 
-                            
-                                    if (trimmedValue === "") {
-                                        e.target.value = previousValue;
-                                    }
-                                    handleOnBlur(e.target.value, "short");
+                        <Select
+                            onValueChange={(value) => {
+                                    setCareerOfMyChoice((prev) => {
+                                        return { long: prev?.long === undefined ? null : prev?.long, short: value };
+                                    });
                                 }
                             }
-                        />
+                            defaultValue={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+                        >
+                            <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {careerPathLoading ? 
+                                    (
+                                        <div className="flex justify-center items-center">
+                                            <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                            <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                        </div>
+                                    ) : careerPathError ? (
+                                        <div className="flex justify-center items-center">
+                                            <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                        </div>
+                                    ) : (
+                                        shortTerms?.map((br: any, index: number) => (
+                                            <SelectItem key={index} value={br.idCP}>{br.desCareer.namaPosition}</SelectItem>
+                                        ))
+                                    )
+                                }
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <div className="flex flex-wrap justify-between gap-1"> 
                     <div className="flex flex-col gap-1 w-full">
                         <label htmlFor={`long`}><b>Long Term Career Plan</b></label>
-                        <input
-                            type="text"
-                            id={`long`}
-                            name={`long`}
-                            className="border border-gray-300 rounded-md p-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder={
-                                !careerOfMyChoice || !careerOfMyChoice.short || careerOfMyChoice.short === "" ?
-                                    "Rencana karir untuk 3-5 tahun?":
-                                    careerOfMyChoice.long || "Rencana karir untuk 3-5 tahun?"
+                        <Select
+                            onValueChange={(value) => {
+                                    setCareerOfMyChoice((prev) => {
+                                        return { short: prev?.short === undefined ? null : prev?.short, long: value };
+                                    });
+                                }
                             }
-                            onBlur={
-                                (e)=>{
-                                    const previousValue = e.target.defaultValue; 
-                                    const trimmedValue = e.target.value.trim(); 
-                            
-                                    if (trimmedValue === "") {
-                                        e.target.value = previousValue;
-                                    }
-                                    handleOnBlur(e.target.value, "long");
-                                }}
-                        />
+                            defaultValue={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+                        >
+                            <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {careerPathLoading ? 
+                                    (
+                                        <div className="flex justify-center items-center">
+                                            <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                            <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                        </div>
+                                    ) : careerPathError ? (
+                                        <div className="flex justify-center items-center">
+                                            <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                        </div>
+                                    ) : (
+                                        longTerms?.map((br: any, index: number) => (
+                                            <SelectItem key={index} value={br.idCP}>{br.desCareer.namaPosition}</SelectItem>
+                                        ))
+                                    )
+                                }
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </div>
         )
     }
-
-    const { careerOfMyChoice, setCareerOfMyChoice } = contextHook.useCareerofMyChoice()!;
-
-    const handleOnBlur = (val: string = "", whatdata: string)=>{
-        const newCareerChoice: contextHook.CareerofMyChoice = {
-            short: whatdata === "short" ? val : careerOfMyChoice?.short ? contextHook.initialCareerOfMyChoiceVal.short : "",
-            long: whatdata === "long" ? val : careerOfMyChoice?.long ? contextHook.initialCareerOfMyChoiceVal.long : "",
-        }
-        return setCareerOfMyChoice( newCareerChoice === undefined ? contextHook.initialCareerOfMyChoiceVal : newCareerChoice)
-    }
-
-    console.log(careerOfMyChoice);
 
     return (
         <form>
@@ -1261,6 +1505,15 @@ export function CareerofMyChoiceComponents(){
 }
 
 export function BestEmployeeComponents(){
+    const {bestEmployee, setBestEmployee} = contextHook.useBestEmployee()!;
+
+    const updateBE = (val: number)=>{
+        if (isNaN(val)){
+            return setBestEmployee(val)
+        }
+    }
+
+    console.log("Banyak karyawan teladan : ", bestEmployee)
     function InputBestEmployee() {
         const { bestEmployee, setBestEmployee } = contextHook.useBestEmployee()!;
     
@@ -1271,7 +1524,7 @@ export function BestEmployeeComponents(){
         };
     
         return (
-            <div className={`${bitter.className} flex flex-col w-full h-1/5 justify-center p-3`}>
+            <div className={`flex flex-col w-full h-1/5 justify-center p-3`}>
                 <textarea
                     id="bestEmployeeInput"
                     name="bestEmployeeInput"
@@ -1290,17 +1543,6 @@ export function BestEmployeeComponents(){
             </div>
         );
     }
-    
-
-    const {bestEmployee, setBestEmployee} = contextHook.useBestEmployee()!;
-
-    const updateBE = (val: number)=>{
-        if (isNaN(val)){
-            return setBestEmployee(val)
-        }
-    }
-
-    console.log(bestEmployee)
     
     return(
         <form>

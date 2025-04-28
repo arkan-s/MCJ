@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 const DMap = new Map([
     ['ADM Fin.& Acct.', 'ADM-FA'],
     ['ADM Gen.Mgt', 'ADM-GM'], 
@@ -38,11 +40,11 @@ const BMap = new Map([
 
 
 export function toIDDept(e: string) {
-    return DMap.get(e) || "ID tidak ditemukan";
+    return DMap.get(e) || "ID Department tidak ditemukan";
 }
 
 export function toIDBranch(e: string) {
-    return BMap.get(e) || "ID tidak diotemukan";
+    return BMap.get(e) || "ID Cabang tidak diotemukan";
 }
 
 const reverseDMap = new Map([
@@ -82,12 +84,39 @@ const reverseBMap = new Map([
     ['P009', 'ICBP-Noodle Tj. Api Api']
 ]);
 
-export { reverseDMap, reverseBMap };
-
 export function toNameDept(id: string) {
     return reverseDMap.get(id) || "Nama Departemen tidak ditemukan";
 }
 
 export function toNameBranch(id: string) {
     return reverseBMap.get(id) || "Nama Cabang tidak ditemukan";
+}
+
+// POSITIONS
+
+export async function toIDPos(position: string, dept:string){
+    const idDept = toIDDept(dept);
+    const dbPOS = await prisma.dataPosition.findFirst({
+        where: {
+            namaPosition: position,
+            dept: idDept
+        },
+        select:{
+            idPosition: true,
+            namaPosition: true
+        }
+    })
+    if (!dbPOS) {
+        return null;
+    }
+
+    return dbPOS?.idPosition;
+}
+
+export async function toNamePos(id: number){
+    const namePos = await prisma.dataPosition.findUnique({
+        where: {idPosition:id}
+    })
+
+    return namePos?.namaPosition;
 }

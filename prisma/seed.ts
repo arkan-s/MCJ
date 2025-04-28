@@ -78,214 +78,1028 @@ async function main() {
     }
     
     const Position = [
-        {"namaPosition": "A & P Admin", "department": "MKT-MKT"},
-        {"namaPosition": "A & P Coord", "department": "MKT-MKT"},
-        {"namaPosition": "A & P Spv", "department": "MKT-MKT"},
-        {"namaPosition": "A & P Staff", "department": "MKT-MKT"},
-        {"namaPosition": "Acct Spv", "department": "ADM-FA"},
-        {"namaPosition": "Acct Staff", "department": "ADM-FA"},
-        {"namaPosition": "Admin to ASPM", "department": "MKT-MKT"},
-        {"namaPosition": "Admin to BHRM", "department": "ADM-HR"},
-        {"namaPosition": "Admin to BPDQC Mgr", "department": "RND-QCA"},
-        {"namaPosition": "Admin to Fin & Acct Mgr", "department": "ADM-FA"},
-        {"namaPosition": "Admin to FM", "department": "MFG-PROD"},
-        {"namaPosition": "Admin to PM", "department": "MFG-PROD"},
-        {"namaPosition": "Admin to Whs Mgr", "department": "MFG-WRH"},
-        {"namaPosition": "Area Sales & Promotion Mgr, Act", "department": "MKT-SD"},
-        {"namaPosition": "Area Sales & Promotion Repr", "department": "MKT-SD"},
-        {"namaPosition": "Area Sales & Promotion Repr, Act", "department": "MKT-SD"},
-        {"namaPosition": "Area Sales & Promotion Spv", "department": "MKT-SD"},
-        {"namaPosition": "Area Sales & Promotion Spv, Act", "department": "MKT-SD"},
-        {"namaPosition": "Assistant BM Indomie", "department": "MKT-MKT"},
-        {"namaPosition": "Bag Noodle Dev Spv", "department": "RND-RD"},
-        {"namaPosition": "BPDQC Mgr, Act", "department": "RND-QCA"},
-        {"namaPosition": "BPDQC Spv", "department": "RND-QCA"},
-        {"namaPosition": "Branch HR Mgr, Act", "department": "ADM-HR"},
-        {"namaPosition": "Branch HR Officer", "department": "ADM-HR"},
-        {"namaPosition": "Budget & Controller Spv", "department": "ADM-FA"},
-        {"namaPosition": "Budget & Controller Spv, Act", "department": "ADM-FA"},
-        {"namaPosition": "Buyer", "department": "MFG-PURC"},
-        {"namaPosition": "Cashier", "department": "ADM-FA"},
-        {"namaPosition": "Category Management Specialist", "department": "MKT-SD"},
-        {"namaPosition": "Central Doc Control Spv", "department": "RND-QCA"},
-        {"namaPosition": "Chemical Analyst", "department": "RND-QCA"},
-        {"namaPosition": "Comben Assistant", "department": "ADM-HR"},
-        {"namaPosition": "Comben Spv", "department": "ADM-HR"},
-        {"namaPosition": "Comben Spv, Act", "department": "ADM-HR"},
-        {"namaPosition": "Comben Staff", "department": "ADM-HR"},
-        {"namaPosition": "Continous Improvement Spv", "department": "ADM-HR"},
-        {"namaPosition": "Coord Ingr. & Alkali", "department": "MFG-PROD"},
-        {"namaPosition": "Cost & Finance Spv", "department": "ADM-FA"},
-        {"namaPosition": "Cost Acct Spv", "department": "ADM-FA"},
-        {"namaPosition": "Cost Acct Staff", "department": "ADM-FA"},
-        {"namaPosition": "CQA & CQC Admin", "department": "RND-QCA"},
-        {"namaPosition": "Cup Noodle & RM Dev Spv", "department": "RND-RD"},
-        {"namaPosition": "Distribution Admin", "department": "MKT-SD"},
-        {"namaPosition": "Distribution Assistant", "department": "MKT-SD"},
-        {"namaPosition": "Distribution Officer", "department": "MKT-SD"},
-        {"namaPosition": "Distribution Officer, Act", "department": "MKT-SD"},
-        {"namaPosition": "Distribution Staff", "department": "MKT-SD"},
-        {"namaPosition": "Doc Controller Spv", "department": "ADM-GM"},
-        {"namaPosition": "Doc Controller Staff", "department": "ADM-GM"},
-        {"namaPosition": "Draft & Design Sect Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Electrical Technical Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Employee Service Staff", "department": "ADM-HR"},
-        {"namaPosition": "Fin & Acct Mgr, Act", "department": "ADM-FA"},
-        {"namaPosition": "Finance Spv", "department": "ADM-FA"},
-        {"namaPosition": "Finance Staff", "department": "ADM-FA"},
-        {"namaPosition": "Flavour Dev Technician", "department": "RND-RD"},
-        {"namaPosition": "Flavour Engineering & Dev Spv", "department": "RND-RD"},
-        {"namaPosition": "Food Services Spv", "department": "MKT-SD"},
-        {"namaPosition": "GAS Assistant", "department": "ADM-HR"},
-        {"namaPosition": "GAS Coord", "department": "ADM-HR"},
-        {"namaPosition": "GAS Spv", "department": "ADM-HR"},
-        {"namaPosition": "GAS Spv, Act", "department": "ADM-HR"},
-        {"namaPosition": "GAS Staff", "department": "ADM-HR"},
-        {"namaPosition": "General Acct Spv", "department": "ADM-FA"},
-        {"namaPosition": "General Acct Staff", "department": "ADM-FA"},
-        {"namaPosition": "Halal Coord & Customer Complain Spv", "department": "ADM-HR"},
-        {"namaPosition": "HCO EDP Spv", "department": "MKT-SD"},
-        {"namaPosition": "HCO Spv", "department": "MKT-SD"},
-        {"namaPosition": "HR Admin", "department": "ADM-HR"},
-        {"namaPosition": "HR Admin Spv", "department": "ADM-HR"},
-        {"namaPosition": "HR EDP Staff", "department": "ADM-HR"},
-        {"namaPosition": "HRIS & Comben Spv", "department": "ADM-HR"},
-        {"namaPosition": "HRIS Spv", "department": "ADM-HR"},
-        {"namaPosition": "Indomie Brand Admin", "department": "MKT-MKT"},
-        {"namaPosition": "Instrument Analyst", "department": "RND-QCA"},
-        {"namaPosition": "IR & PR Asst", "department": "ADM-HR"},
-        {"namaPosition": "IR & PR Spv", "department": "ADM-HR"},
-        {"namaPosition": "IR & PR Staff", "department": "ADM-HR"},
-        {"namaPosition": "IR Assistant", "department": "ADM-HR"},
-        {"namaPosition": "IR Spv", "department": "ADM-HR"},
-        {"namaPosition": "IR Staff", "department": "ADM-HR"},
-        {"namaPosition": "Key Account Spv", "department": "MKT-SD"},
-        {"namaPosition": "Key Account Spv E-Commerce", "department": "MKT-SD"},
-        {"namaPosition": "Key Account Spv Modern Food Service", "department": "MKT-SD"},
-        {"namaPosition": "Key Account Spv MTKA", "department": "MKT-SD"},
-        {"namaPosition": "Lab Chemistry Coordinator", "department": "RND-QCA"},
-        {"namaPosition": "Lab Microbiology Coordinator", "department": "RND-QCA"},
-        {"namaPosition": "Management EDP Spv", "department": "ADM-GM"},
-        {"namaPosition": "Management EDP Spv, Act", "department": "ADM-GM"},
-        {"namaPosition": "Management EDP Staff", "department": "ADM-GM"},
-        {"namaPosition": "Manpower Productivity Spv", "department": "ADM-HR"},
-        {"namaPosition": "Marketing Admin", "department": "MKT-MKT"},
-        {"namaPosition": "Marketing EDP Spv", "department": "MKT-SD"},
-        {"namaPosition": "Marketing EDP Spv", "department": "MKT-MKT"},
-        {"namaPosition": "Marketing EDP Spv, Act", "department": "MKT-MKT"},
-        {"namaPosition": "Marketing EDP Staff", "department": "MKT-MKT"},
-        {"namaPosition": "Microbiology Analyst", "department": "RND-QCA"},
-        {"namaPosition": "Modern Trade Promotion Analyst & Support", "department": "MKT-SD"},
-        {"namaPosition": "MT Acct", "department": "ADM-HR"},
-        {"namaPosition": "MT HR", "department": "ADM-HR"},
-        {"namaPosition": "MT MFG", "department": "ADM-HR"},
-        {"namaPosition": "MT PPIC", "department": "ADM-HR"},
-        {"namaPosition": "MT Sales", "department": "ADM-HR"},
-        {"namaPosition": "Nd Others, Shelf Life & Regulatory Staff", "department": "RND-RD"},
-        {"namaPosition": "NPL Project & Shelf Life Spv", "department": "RND-QCA"},
-        {"namaPosition": "OD & PD Staff", "department": "ADM-HR"},
-        {"namaPosition": "Operation Dev Spv", "department": "MFG-MFT"},
-        {"namaPosition": "Org Dev Spv", "department": "ADM-HR"},
-        {"namaPosition": "Org Dev Spv, Act", "department": "ADM-HR"},
-        {"namaPosition": "Org Dev Staff", "department": "ADM-HR"},
-        {"namaPosition": "Panel Dev Staff", "department": "RND-RD"},
-        {"namaPosition": "Panelis Dev Coordinator", "department": "RND-RD"},
-        {"namaPosition": "People Dev Staff", "department": "ADM-HR"},
-        {"namaPosition": "PPIC Assistant", "department": "MFG-PPIC"},
-        {"namaPosition": "PPIC RM Planning Assistant", "department": "MFG-PPIC"},
-        {"namaPosition": "PPIC RM Planning Staff", "department": "MFG-PPIC"},
-        {"namaPosition": "PPIC Spv", "department": "MFG-PPIC"},
-        {"namaPosition": "PPIC Spv, Act", "department": "MFG-PPIC"},
-        {"namaPosition": "PPIC Staff", "department": "MFG-PPIC"},
-        {"namaPosition": "PR Staff", "department": "ADM-HR"},
-        {"namaPosition": "Prod EPS Section Spv", "department": "MFG-PROD"},
-        {"namaPosition": "Prod EPS Spv", "department": "MFG-PROD"},
-        {"namaPosition": "Prod Section SILO", "department": "MFG-PROD"},
-        {"namaPosition": "Prod Section Spv", "department": "MFG-PROD"},
-        {"namaPosition": "Prod Section Spv, Act", "department": "MFG-PROD"},
-        {"namaPosition": "Prod Shift Spv", "department": "MFG-PROD"},
-        {"namaPosition": "Prod Shift Spv, Act", "department": "MFG-PROD"},
-        {"namaPosition": "Product Dev Technician", "department": "RND-RD"},
-        {"namaPosition": "Production Mgr, Act", "department": "MFG-PROD"},
-        {"namaPosition": "Production Spv", "department": "MFG-PROD"},
-        {"namaPosition": "Prototype Technician", "department": "RND-RD"},
-        {"namaPosition": "Proximat Analyst", "department": "RND-QCA"},
-        {"namaPosition": "Purchasing Admin", "department": "MFG-PURC"},
-        {"namaPosition": "Purchasing Assistant", "department": "MFG-PURC"},
-        {"namaPosition": "Purchasing Officer", "department": "MFG-PURC"},
-        {"namaPosition": "Purchasing Staff", "department": "MFG-PURC"},
-        {"namaPosition": "QC Auditor Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC FG Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC FG Section Spv, Act", "department": "RND-QCA"},
-        {"namaPosition": "QC PD Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC PD Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC Process Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC Process Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC Process Spv, Act", "department": "RND-QCA"},
-        {"namaPosition": "QC RM & FG Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC RM & FG Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC RM & FG Spv, Act", "department": "RND-QCA"},
-        {"namaPosition": "QC RM Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "QC Section Spv", "department": "RND-QCA"},
-        {"namaPosition": "Sales EDP Spv", "department": "MKT-SD"},
-        {"namaPosition": "Sales Trainee", "department": "ADM-HR"},
-        {"namaPosition": "Sales Trainee - ASPR, Act", "department": "ADM-HR"},
-        {"namaPosition": "Sarimi Brand Admin", "department": "MKT-MKT"},
-        {"namaPosition": "Secretary to BM", "department": "ADM-GM"},
-        {"namaPosition": "Secretary to Div. Head", "department": "ADM-GM"},
-        {"namaPosition": "Secretary to GM", "department": "ADM-GM"},
-        {"namaPosition": "Secretary to GM Fin & Acct", "department": "ADM-FA"},
-        {"namaPosition": "Secretary to GM HR", "department": "ADM-HR"},
-        {"namaPosition": "Secretary to GM Marketing", "department": "MKT-MKT"},
-        {"namaPosition": "Secretary to GM Mfg", "department": "MFG-MFT"},
-        {"namaPosition": "Secretary to GM Sales", "department": "MKT-SD"},
-        {"namaPosition": "Section Whs Spare Part", "department": "MFG-TECH"},
-        {"namaPosition": "Security Chief", "department": "ADM-HR"},
-        {"namaPosition": "Security Grp Leader", "department": "ADM-HR"},
-        {"namaPosition": "SHE Assistant", "department": "ADM-HR"},
-        {"namaPosition": "SHE Spv", "department": "ADM-HR"},
-        {"namaPosition": "SHE Staff", "department": "ADM-HR"},
-        {"namaPosition": "System Analyst Spv", "department": "ADM-FA"},
-        {"namaPosition": "Targeted Flavour Dev Spv", "department": "RND-RD"},
-        {"namaPosition": "Targeted Flavour Dev Staff", "department": "RND-RD"},
-        {"namaPosition": "Tax & Acct Spv", "department": "ADM-FA"},
-        {"namaPosition": "Tax Officer", "department": "ADM-FA"},
-        {"namaPosition": "Tax Staff", "department": "ADM-FA"},
-        {"namaPosition": "Tech Building & General Sec", "department": "MFG-TECH"},
-        {"namaPosition": "Tech EPS Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech PM Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Process Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Prod EPS Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Prod Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Prod Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Utility Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Utility Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Workshop Section", "department": "MFG-TECH"},
-        {"namaPosition": "Tech Workshop Section Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Technical Mgr, Act", "department": "MFG-TECH"},
-        {"namaPosition": "Technical Spv", "department": "MFG-TECH"},
-        {"namaPosition": "Trade Marketing Spv GT", "department": "MKT-SD"},
-        {"namaPosition": "Trade Marketing Spv MTI", "department": "MKT-SD"},
-        {"namaPosition": "Warehouse FG Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Warehouse Mgr, Act", "department": "MFG-WRH"},
-        {"namaPosition": "Warehouse Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs FG Section Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs FG Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs RM Admin", "department": "MFG-WRH"},
-        {"namaPosition": "Whs RM Section Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs RM Section Spv, Act", "department": "MFG-WRH"},
-        {"namaPosition": "Whs RM Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs RM Spv, Act", "department": "MFG-WRH"},
-        {"namaPosition": "Whs SP & A&P Section Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Whs SP Section Spv", "department": "MFG-WRH"},
-        {"namaPosition": "Workshop Supervisor", "department": "MFG-TECH"}
+        {
+         "idPosition": 1,
+         "namaPosition": "A & P Admin",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 2,
+         "namaPosition": "A & P Coord",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 3,
+         "namaPosition": "A & P Spv",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 4,
+         "namaPosition": "A & P Staff",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 5,
+         "namaPosition": "Acct Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 6,
+         "namaPosition": "Acct Staff",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 7,
+         "namaPosition": "Admin to ASPM",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 8,
+         "namaPosition": "Admin to BHRM",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 9,
+         "namaPosition": "Admin to BPDQC Mgr",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 10,
+         "namaPosition": "Admin to Fin & Acct Mgr",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 11,
+         "namaPosition": "Admin to FM",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 12,
+         "namaPosition": "Admin to PM",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 13,
+         "namaPosition": "Admin to Whs Mgr",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 14,
+         "namaPosition": "Area Sales & Promotion Mgr, Act",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 15,
+         "namaPosition": "Area Sales & Promotion Repr",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 16,
+         "namaPosition": "Area Sales & Promotion Repr, Act",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 17,
+         "namaPosition": "Area Sales & Promotion Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 18,
+         "namaPosition": "Area Sales & Promotion Spv, Act",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 19,
+         "namaPosition": "Assistant BM Indomie",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 20,
+         "namaPosition": "Bag Noodle Dev Spv",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 21,
+         "namaPosition": "BPDQC Mgr, Act",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 22,
+         "namaPosition": "BPDQC Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 23,
+         "namaPosition": "Branch HR Mgr, Act",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 24,
+         "namaPosition": "Branch HR Officer",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 25,
+         "namaPosition": "Budget & Controller Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 26,
+         "namaPosition": "Budget & Controller Spv, Act",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 27,
+         "namaPosition": "Buyer",
+         "personnelSubarea": "MFG-PURC"
+        },
+        {
+         "idPosition": 28,
+         "namaPosition": "Cashier",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 29,
+         "namaPosition": "Category Management Specialist",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 30,
+         "namaPosition": "Central Doc Control Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 31,
+         "namaPosition": "Chemical Analyst",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 32,
+         "namaPosition": "Comben Assistant",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 33,
+         "namaPosition": "Comben Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 34,
+         "namaPosition": "Comben Spv, Act",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 35,
+         "namaPosition": "Comben Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 36,
+         "namaPosition": "Continous Improvement Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 37,
+         "namaPosition": "Coord Ingr. & Alkali",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 38,
+         "namaPosition": "Cost & Finance Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 39,
+         "namaPosition": "Cost Acct Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 40,
+         "namaPosition": "Cost Acct Staff",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 41,
+         "namaPosition": "CQA & CQC Admin",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 42,
+         "namaPosition": "Cup Noodle & RM Dev Spv",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 43,
+         "namaPosition": "Distribution Admin",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 44,
+         "namaPosition": "Distribution Assistant",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 45,
+         "namaPosition": "Distribution Officer",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 46,
+         "namaPosition": "Distribution Officer, Act",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 47,
+         "namaPosition": "Distribution Staff",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 48,
+         "namaPosition": "Doc Controller Spv",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 49,
+         "namaPosition": "Doc Controller Staff",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 50,
+         "namaPosition": "Draft & Design Sect Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 51,
+         "namaPosition": "Electrical Technical Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 52,
+         "namaPosition": "Employee Service Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 53,
+         "namaPosition": "Fin & Acct Mgr, Act",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 54,
+         "namaPosition": "Finance Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 55,
+         "namaPosition": "Finance Staff",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 56,
+         "namaPosition": "Flavour Dev Technician",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 57,
+         "namaPosition": "Flavour Engineering & Dev Spv",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 58,
+         "namaPosition": "Food Services Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 59,
+         "namaPosition": "GAS Assistant",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 60,
+         "namaPosition": "GAS Coord",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 61,
+         "namaPosition": "GAS Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 62,
+         "namaPosition": "GAS Spv, Act",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 63,
+         "namaPosition": "GAS Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 64,
+         "namaPosition": "General Acct Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 65,
+         "namaPosition": "General Acct Staff",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 66,
+         "namaPosition": "Halal Coord & Customer Complain Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 67,
+         "namaPosition": "HCO EDP Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 68,
+         "namaPosition": "HCO Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 69,
+         "namaPosition": "HR Admin",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 70,
+         "namaPosition": "HR Admin Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 71,
+         "namaPosition": "HR EDP Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 72,
+         "namaPosition": "HRIS & Comben Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 73,
+         "namaPosition": "HRIS Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 74,
+         "namaPosition": "Indomie Brand Admin",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 75,
+         "namaPosition": "Instrument Analyst",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 76,
+         "namaPosition": "IR & PR Asst",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 77,
+         "namaPosition": "IR & PR Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 78,
+         "namaPosition": "IR & PR Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 79,
+         "namaPosition": "IR Assistant",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 80,
+         "namaPosition": "IR Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 81,
+         "namaPosition": "IR Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 82,
+         "namaPosition": "Key Account Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 83,
+         "namaPosition": "Key Account Spv E-Commerce",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 84,
+         "namaPosition": "Key Account Spv Modern Food Service",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 85,
+         "namaPosition": "Key Account Spv MTKA",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 86,
+         "namaPosition": "Lab Chemistry Coordinator",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 87,
+         "namaPosition": "Lab Microbiology Coordinator",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 88,
+         "namaPosition": "Management EDP Spv",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 89,
+         "namaPosition": "Management EDP Spv, Act",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 90,
+         "namaPosition": "Management EDP Staff",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 91,
+         "namaPosition": "Manpower Productivity Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 92,
+         "namaPosition": "Marketing Admin",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 93,
+         "namaPosition": "Marketing EDP Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 94,
+         "namaPosition": "Marketing EDP Spv",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 95,
+         "namaPosition": "Marketing EDP Spv, Act",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 96,
+         "namaPosition": "Marketing EDP Staff",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 97,
+         "namaPosition": "Microbiology Analyst",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 98,
+         "namaPosition": "Modern Trade Promotion Analyst & Support",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 99,
+         "namaPosition": "MT Acct",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 100,
+         "namaPosition": "MT HR",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 101,
+         "namaPosition": "MT MFG",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 102,
+         "namaPosition": "MT PPIC",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 103,
+         "namaPosition": "MT Sales",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 104,
+         "namaPosition": "Nd Others, Shelf Life & Regulatory Staff",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 105,
+         "namaPosition": "NPL Project & Shelf Life Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 106,
+         "namaPosition": "OD & PD Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 107,
+         "namaPosition": "Operation Dev Spv",
+         "personnelSubarea": "MFG-MFT"
+        },
+        {
+         "idPosition": 108,
+         "namaPosition": "Org Dev Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 109,
+         "namaPosition": "Org Dev Spv, Act",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 110,
+         "namaPosition": "Org Dev Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 111,
+         "namaPosition": "Panel Dev Staff",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 112,
+         "namaPosition": "Panelis Dev Coordinator",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 113,
+         "namaPosition": "People Dev Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 114,
+         "namaPosition": "PPIC Assistant",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 115,
+         "namaPosition": "PPIC RM Planning Assistant",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 116,
+         "namaPosition": "PPIC RM Planning Staff",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 117,
+         "namaPosition": "PPIC Spv",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 118,
+         "namaPosition": "PPIC Spv, Act",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 119,
+         "namaPosition": "PPIC Staff",
+         "personnelSubarea": "MFG-PPIC"
+        },
+        {
+         "idPosition": 120,
+         "namaPosition": "PR Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 121,
+         "namaPosition": "Prod EPS Section Spv",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 122,
+         "namaPosition": "Prod EPS Spv",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 123,
+         "namaPosition": "Prod Section SILO",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 124,
+         "namaPosition": "Prod Section Spv",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 125,
+         "namaPosition": "Prod Section Spv, Act",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 126,
+         "namaPosition": "Prod Shift Spv",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 127,
+         "namaPosition": "Prod Shift Spv, Act",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 128,
+         "namaPosition": "Product Dev Technician",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 129,
+         "namaPosition": "Production Mgr, Act",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 130,
+         "namaPosition": "Production Spv",
+         "personnelSubarea": "MFG-PROD"
+        },
+        {
+         "idPosition": 131,
+         "namaPosition": "Prototype Technician",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 132,
+         "namaPosition": "Proximat Analyst",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 133,
+         "namaPosition": "Purchasing Admin",
+         "personnelSubarea": "MFG-PURC"
+        },
+        {
+         "idPosition": 134,
+         "namaPosition": "Purchasing Assistant",
+         "personnelSubarea": "MFG-PURC"
+        },
+        {
+         "idPosition": 135,
+         "namaPosition": "Purchasing Officer",
+         "personnelSubarea": "MFG-PURC"
+        },
+        {
+         "idPosition": 136,
+         "namaPosition": "Purchasing Staff",
+         "personnelSubarea": "MFG-PURC"
+        },
+        {
+         "idPosition": 137,
+         "namaPosition": "QC Auditor Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 138,
+         "namaPosition": "QC FG Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 139,
+         "namaPosition": "QC FG Section Spv, Act",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 140,
+         "namaPosition": "QC PD Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 141,
+         "namaPosition": "QC PD Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 142,
+         "namaPosition": "QC Process Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 143,
+         "namaPosition": "QC Process Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 144,
+         "namaPosition": "QC Process Spv, Act",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 145,
+         "namaPosition": "QC RM & FG Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 146,
+         "namaPosition": "QC RM & FG Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 147,
+         "namaPosition": "QC RM & FG Spv, Act",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 148,
+         "namaPosition": "QC RM Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 149,
+         "namaPosition": "QC Section Spv",
+         "personnelSubarea": "RND-QCA"
+        },
+        {
+         "idPosition": 150,
+         "namaPosition": "Sales EDP Spv",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 151,
+         "namaPosition": "Sales Trainee",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 152,
+         "namaPosition": "Sales Trainee - ASPR, Act",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 153,
+         "namaPosition": "Sarimi Brand Admin",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 154,
+         "namaPosition": "Secretary to BM",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 155,
+         "namaPosition": "Secretary to Div. Head",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 156,
+         "namaPosition": "Secretary to GM",
+         "personnelSubarea": "ADM-GM"
+        },
+        {
+         "idPosition": 157,
+         "namaPosition": "Secretary to GM Fin & Acct",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 158,
+         "namaPosition": "Secretary to GM HR",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 159,
+         "namaPosition": "Secretary to GM Marketing",
+         "personnelSubarea": "MKT-MKT"
+        },
+        {
+         "idPosition": 160,
+         "namaPosition": "Secretary to GM Mfg",
+         "personnelSubarea": "MFG-MFT"
+        },
+        {
+         "idPosition": 161,
+         "namaPosition": "Secretary to GM Sales",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 162,
+         "namaPosition": "Section Whs Spare Part",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 163,
+         "namaPosition": "Security Chief",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 164,
+         "namaPosition": "Security Grp Leader",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 165,
+         "namaPosition": "SHE Assistant",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 166,
+         "namaPosition": "SHE Spv",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 167,
+         "namaPosition": "SHE Staff",
+         "personnelSubarea": "ADM-HR"
+        },
+        {
+         "idPosition": 168,
+         "namaPosition": "System Analyst Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 169,
+         "namaPosition": "Targeted Flavour Dev Spv",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 170,
+         "namaPosition": "Targeted Flavour Dev Staff",
+         "personnelSubarea": "RND-RD"
+        },
+        {
+         "idPosition": 171,
+         "namaPosition": "Tax & Acct Spv",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 172,
+         "namaPosition": "Tax Officer",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 173,
+         "namaPosition": "Tax Staff",
+         "personnelSubarea": "ADM-FA"
+        },
+        {
+         "idPosition": 174,
+         "namaPosition": "Tech Building & General Sec",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 175,
+         "namaPosition": "Tech EPS Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 176,
+         "namaPosition": "Tech PM Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 177,
+         "namaPosition": "Tech Process Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 178,
+         "namaPosition": "Tech Prod EPS Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 179,
+         "namaPosition": "Tech Prod Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 180,
+         "namaPosition": "Tech Prod Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 181,
+         "namaPosition": "Tech Utility Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 182,
+         "namaPosition": "Tech Utility Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 183,
+         "namaPosition": "Tech Workshop Section",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 184,
+         "namaPosition": "Tech Workshop Section Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 185,
+         "namaPosition": "Technical Mgr, Act",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 186,
+         "namaPosition": "Technical Spv",
+         "personnelSubarea": "MFG-TECH"
+        },
+        {
+         "idPosition": 187,
+         "namaPosition": "Trade Marketing Spv GT",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 188,
+         "namaPosition": "Trade Marketing Spv MTI",
+         "personnelSubarea": "MKT-SD"
+        },
+        {
+         "idPosition": 189,
+         "namaPosition": "Warehouse FG Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 190,
+         "namaPosition": "Warehouse Mgr, Act",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 191,
+         "namaPosition": "Warehouse Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 192,
+         "namaPosition": "Whs FG Section Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 193,
+         "namaPosition": "Whs FG Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 194,
+         "namaPosition": "Whs RM Admin",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 195,
+         "namaPosition": "Whs RM Section Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 196,
+         "namaPosition": "Whs RM Section Spv, Act",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 197,
+         "namaPosition": "Whs RM Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 198,
+         "namaPosition": "Whs RM Spv, Act",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 199,
+         "namaPosition": "Whs SP & A&P Section Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 200,
+         "namaPosition": "Whs SP Section Spv",
+         "personnelSubarea": "MFG-WRH"
+        },
+        {
+         "idPosition": 201,
+         "namaPosition": "Workshop Supervisor",
+         "personnelSubarea": "MFG-TECH"
+        }
     ]
     for (let index = 0; index < Position.length; index++) {
         await prisma.dataPosition.upsert(
             {
-                where: { namaPosition : Position[index]["namaPosition"] },
-                update: {},
-                create: { namaPosition : Position[index]["namaPosition"] },
+                where: { 
+                    idPosition : Position[index].idPosition
+                },
+                update: {
+                    // idPosition: Position[index].idPosition,
+                    namaPosition: Position[index].namaPosition,
+                    dept: Position[index].personnelSubarea
+                },
+                create: { 
+                    // idPosition: Position[index].idPosition,
+                    namaPosition: Position[index].namaPosition,
+                    dept: Position[index].personnelSubarea
+                },
             }
         )
     }

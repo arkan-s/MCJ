@@ -8,7 +8,12 @@ declare module "next-auth" {
     interface User {
         nik: string;
         role: string;
-        isFirstLogin: boolean;
+        branch: string;
+        dept: string;
+        name: string;
+        email: string?;
+        formFilled: number;
+        questionnaire: number;
     }
 }
 
@@ -17,6 +22,11 @@ declare module "next-auth/jwt" {
         sub: string;
         nik: string;
         role: string;
-        isFirstLogin: boolean;
+        branch: string;
+        dept: string;
+        name: string;
+        email: string?;
+        formFilled: number;
+        questionnaire: number;
     }
 }

@@ -22,20 +22,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw new Error("NIK atau Password tidak terinput!" );
                 }
                 
-                                    
                 // logic to verify if the user exists
                 const { nik, password } = credentials as { nik: string; password: string };
                 
-
                 const userData = await prisma.user.findUnique({
                     where: { 
                         nomorIndukKaryawan: nik
                     },
-                    select: {
-                        nomorIndukKaryawan: true,
-                        password: true,
-                        role: true,
-                        isFirstLogin: true
+                    include: {
+                        DataKaryawan: {
+                            select: {
+                                formFilled: true,
+                                questionnaire: true
+                            }
+                        }
                     }
                 });
                 
@@ -43,22 +43,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (!userData) {
                     throw new Error("Data user tidak ditemukan.");
                 }
+
+                const confirmPassword = await comparePassword(password, userData.password);
+                
+                if(!confirmPassword){
+                    throw new Error("Invalid credentials");
+                }
                 
                 user = userData
                     ? {
                         nik: userData.nomorIndukKaryawan,
                         role: userData.role,
-                        isFirstLogin: userData.isFirstLogin
+                        branch: userData.branch,
+                        dept: userData.dept,
+                        name: userData.name,
+                        email: userData.email ?? "",
+                        formFilled: userData.DataKaryawan?.formFilled ?? 0,
+                        questionnaire: userData.DataKaryawan?.questionnaire ?? 0,
                     }
                     : null;
-
-                const confirmPassword = await comparePassword(password, userData.password);
-                
-                if(!confirmPassword){
-                    throw new Error("Password salah");
-                }
-        
-                // return user object with their profile data
                 return user
             }
         })

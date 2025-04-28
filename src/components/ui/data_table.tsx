@@ -25,7 +25,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { StringifyOptions } from "node:querystring"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -43,21 +42,21 @@ export function DataTable<TData, TValue>({columns,data, addDataURL}: DataTablePr
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        onSortingChange: setSorting,
         state: {
             sorting,
             globalFilter,
         },
-        onGlobalFilterChange: setGlobalFilter,
         getFilteredRowModel: getFilteredRowModel(),
+        onGlobalFilterChange: setGlobalFilter,
     })
 
     return (
         <div>
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Cari data..."
+                    placeholder="Cari posisi..."
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     className="max-w-sm"

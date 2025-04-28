@@ -5,11 +5,11 @@ import { NextResponse } from "next/server";
 
 export default auth(async (req) => {
 
-    const PUBLIC_ROUTES: string[] = ["/login", "/register", "/"]
+    const PUBLIC_ROUTES: string[] = ["/login", "/register", "/loginadmin", "/"]
     const REDIRECT_ROLE = {
-    "employee": new URL("/employee", req.nextUrl.origin),
-    "hr": new URL("/hr", req.nextUrl.origin),
-    "hd": new URL("/hd", req.nextUrl.origin)
+        "employee": new URL("/employee/dashboard", req.nextUrl.origin),
+        "hr": new URL("/hr/dashboard", req.nextUrl.origin),
+        "hd": new URL("/hd/dashboard", req.nextUrl.origin)
     }
     const REDIRECT_UNAUTH = new URL("/login", req.nextUrl.origin);
     const isAuthenticated = !!req.auth;
@@ -26,6 +26,7 @@ export default auth(async (req) => {
                 return NextResponse.redirect(REDIRECT_ROLE.hd);
         }
     }
+
 	// Izinkan akses jika halaman publik
     if (isPublicRoute) {
         return undefined;
@@ -36,8 +37,35 @@ export default auth(async (req) => {
         return NextResponse.redirect(REDIRECT_UNAUTH)
     }
 
+    if (req.nextUrl.pathname.startsWith("/rbac") && isAuthenticated) {
+        switch (req.auth?.user?.role) {
+            case "employee":
+                if (req.auth.user.formFilled === 0) {
+                    return NextResponse.redirect(new URL("/employee/form", req.nextUrl.origin));
+                } else if (req.auth.user.questionnaire === 0){
+                    return NextResponse.redirect(new URL("/employee/questionnaire", req.nextUrl.origin));
+                }
+                return NextResponse.redirect(REDIRECT_ROLE.employee);
+            case "hr":
+                return NextResponse.redirect(REDIRECT_ROLE.hr);
+            case "hd":
+                return NextResponse.redirect(REDIRECT_ROLE.hd);
+            default:
+                return NextResponse.redirect(REDIRECT_UNAUTH); // kalau rolenya gak ketahuan
+        }
+    }
+
+    if (req.nextUrl.pathname === "/employee" && req?.auth?.user.role === "employee") {
+        return NextResponse.redirect(REDIRECT_ROLE.employee);
+    }
+    if (req.nextUrl.pathname === "/hr" && req?.auth?.user.role === "hr") {
+        return NextResponse.redirect(REDIRECT_ROLE.hr);
+    }
+    if (req.nextUrl.pathname === "/hd" && req?.auth?.user.role === "hd") {
+        return NextResponse.redirect(REDIRECT_ROLE.hd);
+    }
+
     // if(req.nextUrl.pathname.startsWith("/employee") && req.auth?.user?.role === "employee"){
-    //     console.log("emp bisa");
     //     return NextResponse.next();
     // } else {
     //     if (req.auth?.user?.role === "hr") {
