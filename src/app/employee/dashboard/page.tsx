@@ -23,7 +23,7 @@ import { branch, department, getDashboardKaryawan, level, position } from "@/uti
 import { getQueryClient } from '@/lib/getQueryClient';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { CareerHistoryCard, ProjectCard } from './Cards';
+import { CareerHistoryCard, ComiteeCard, OrgIntCard, ProjectCard } from './Cards';
 import { Scrollbar } from '@radix-ui/react-scroll-area';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id'; // supaya Bahasa Indonesia
@@ -151,16 +151,15 @@ export default function Dashboard() {
                 </div>
                 <div className="flex grow md:h-3/5">
                         <Tabs defaultValue="Riwayat Karir" className="flex flex-col w-full grow">
-                            <TabsList className="grid w-fit grid-cols-7 bg-slate-300 mb-0 rounded-bl-none">
+                            <TabsList className="grid w-fit grid-cols-6 bg-slate-300 mb-0 rounded-bl-none">
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Riwayat Karir">Riwayat Karir</TabsTrigger>
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Project">Project</TabsTrigger>
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Organisasi Internal">Organisasi Internal</TabsTrigger>
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Kepanitiaan">Kepanitiaan</TabsTrigger>
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Riwayat GKM">GKM</TabsTrigger>
-                                <TabsTrigger className="truncate text-[8px] md:text-sm" value="Job Interest">Job Interest</TabsTrigger>
                                 <TabsTrigger className="truncate text-[8px] md:text-sm" value="Training">Training</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="Riwayat Karir" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1  md:-mt-px">
+                            <TabsContent value="Riwayat Karir" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1 md:-mt-px">
                                     {
                                         dashboardData?.DataRiwayatKarir?.length === 0 || dashboardData?.formFilled === 0 ?
                                             (
@@ -172,7 +171,7 @@ export default function Dashboard() {
                                             ))
                                     }
                             </TabsContent>
-                            <TabsContent value="Project" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1  md:-mt-px">
+                            <TabsContent value="Project" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1 md:-mt-px">
                                     {
                                         dashboardData?.DataRiwayatProject?.length === 0 ?
                                             (
@@ -184,6 +183,70 @@ export default function Dashboard() {
                                             ))
                                     }
                             </TabsContent>
+                            <TabsContent value="Organisasi Internal" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1 md:-mt-px">
+                                {
+                                    dashboardData?.DataRiwayatOrganisasiInternal?.length === 0 ?
+                                        (
+                                            <h1>Data anda masih kosong</h1>
+                                        )
+                                        :
+                                        dashboardData?.DataRiwayatOrganisasiInternat?.map((e:any, index: number)=>(
+                                            <OrgIntCard key={index} data={e}></OrgIntCard>
+                                        ))
+                                }
+                            </TabsContent>
+                            <TabsContent value="Kepanitiaan" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1 md:-mt-px">
+                                {
+                                    dashboardData?.DataRiwayatKepanitiaan?.length === 0 ?
+                                        (
+                                            <h1>Data anda masih kosong</h1>
+                                        )
+                                        :
+                                        dashboardData?.DataRiwayatKepanitiaan?.map((e:any, index: number)=>(
+                                            <ComiteeCard key={index} data={e}></ComiteeCard>
+                                        ))
+                                }
+                            </TabsContent>
+                            <TabsContent value="Kepanitiaan" className="flex flex-col md:flex-row grow justify-center items-center md:justify-start p-1 md:-mt-px">
+                                {
+                                    dashboardData?.DataRiwayatGKM ?
+                                        (
+                                            <h1>Data anda masih kosong</h1>
+                                        )
+                                        :
+                                        (
+                                        <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
+                                            <CardContent>
+                                                <div className="flex flex-col">
+                                                    <label className="text-sm text-gray-600 mb-1" htmlFor={`tahunPelaksanaan${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}>
+                                                        Total keikutsertaan
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        id={`tahunPelaksanaan${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}
+                                                        name={`tahunPelaksanaan${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}
+                                                        placeholder={dashboardData ? dashboardData?.DataRiwayatGKM?.banyakKeikutsertaan === null ? "Berapa kali ikut GKM?" : String(dashboardData?.DataRiwayatGKM?.banyakKeikutsertaan) : "Berapa kali ikut GKM?"}
+                                                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <label className="text-sm text-gray-600 mb-1" htmlFor={`posisiTertinggi${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}>
+                                                        Posisi Tertinggi
+                                                    </label>
+                                                    <input
+                                                        type="String"
+                                                        id={`posisiTertinggi${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}
+                                                        name={`posisiTertinggi${dashboardData?.DataRiwayatGKM?.nomorIndukKaryawan}`}
+                                                        placeholder={dashboardData ? dashboardData?.DataRiwayatGKM?.banyakKeikutsertaan === null ? "Berapa kali ikut GKM?" : String(dashboardData?.DataRiwayatGKM?.banyakKeikutsertaan) : "Berapa kali ikut GKM?"}
+                                                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                        )
+                                }
+                            </TabsContent>
+
                         </Tabs>
                 </div>
             </div>

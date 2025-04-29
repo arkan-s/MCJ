@@ -178,10 +178,16 @@ export function PaginationFormHandler({total_pages, page_number, changing_page, 
 
     const mutationFn = async () => {
         // 1. Ambil dari cache
-        const prev_data: any = queryClient.getQueryData(['datakaryawan']);
+        let prev_data: any = queryClient.getQueryData(['datakaryawan']);
 
         if (!prev_data) {
-            throw new Error('Data karyawan tidak ditemukan di cache');
+            prev_data = await queryClient.fetchQuery({
+                queryKey: ['datakaryawan'],
+                queryFn: () => getdatakaryawan(session?.data?.user.nik),
+                retry: 3, 
+                retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+                staleTime: Infinity,
+            });
         }
 
         // 2. Transform datanya
@@ -199,7 +205,7 @@ export function PaginationFormHandler({total_pages, page_number, changing_page, 
             namaJurusan: prev_data.namaJurusan,
             age: (new Date().getTime() - new Date(prev_data.tanggalLahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25),
             lengthOfService: (new Date().getTime() - new Date(prev_data.tanggalMasukKerja).getTime()) / (1000 * 60 * 60 * 24 * 365.25),
-            formFilled: 1, // <== UBAH di sini
+            formFilled: 1,
             questionnaire: prev_data.questionnaire,
             createdAt: prev_data.createdAt,
             lastUpdatedAt: new Date(),

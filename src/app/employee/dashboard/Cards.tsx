@@ -407,7 +407,7 @@ export function CareerHistoryCard({data}:
             </CardContent>
 
             <CardFooter className="flex justify-end h-[10%] gap-4 mt-4">
-                {!editOn ? (
+                {/* {!editOn ? (
                     <button
                         onClick={() => setEditOn(true)}
                         className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition"
@@ -457,7 +457,7 @@ export function CareerHistoryCard({data}:
                     >
                         Selesai
                     </button>
-                )}
+                )} */}
             </CardFooter>
         </Card>
 
@@ -599,7 +599,7 @@ export function ProjectCard({data}:{data:{
             </div>
             </CardContent>
             <CardFooter className="flex justify-end h-[10%] gap-4 mt-4">
-                {!editOn ? (
+                {/* {!editOn ? (
                     <button
                         onClick={() => setEditOn(true)}
                         className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition"
@@ -613,9 +613,244 @@ export function ProjectCard({data}:{data:{
                     >
                         Selesai
                     </button>
-                )}
+                )} */}
             </CardFooter>
         </Card>
     )
     
+}
+
+export function OrgIntCard({data}:{data:{
+    idRiwayatOrganisasiInternal: string; 
+    namaOrganisasi: string;       
+    namaPosisi: string;
+    tahunMulai: number;
+    tahunSelesai: number;
+    nomorIndukKaryawan: string;
+}}){
+    const [ editOn, setEditOn] = useState<boolean>(false);
+    const [dataLokal, setDataLokal] = useState<{
+        idRiwayatOrganisasiInternal: string,
+        namaOrganisasi: string,
+        namaPosisi: string,
+        tahunMulai: number,
+        tahunSelesai: number,
+        nomorIndukKaryawan: string,
+    }>();
+    useEffect(() => {
+        setDataLokal(data);
+    }, [data]);
+
+    console.log(
+        dataLokal
+    );
+
+    return (
+        <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
+            <CardContent className="">
+            <div className="flex flex-col">
+                <label htmlFor={`namaOrganisasi${dataLokal?.idRiwayatOrganisasiInternal}`} className="text-sm text-gray-600 mb-1">Nama Organisasi</label>
+                <input
+                    type="text"
+                    id={`namaOrganisasi${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    name={`namaOrganisasi${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    placeholder={dataLokal ? dataLokal.namaOrganisasi === null ? "Nama Organisasi" : dataLokal.namaOrganisasi : "Nama Organisasi"}
+                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onBlur={(e) => {
+                        setDataLokal((prev) => ({
+                            ...(prev || {
+                                idRiwayatOrganisasiInternal: "",
+                                namaOrganisasi: "",
+                                namaPosisi: "",
+                                tahunMulai: 0,
+                                tahunSelesai: 0,
+                                nomorIndukKaryawan: "",
+                            }),
+                            namaOrganisasi: e.target.value
+                        }))
+                    }}
+                    disabled={!editOn}
+                />
+            </div>
+            <div className="flex flex-col">
+                <label htmlFor={`namaPosisi${dataLokal?.idRiwayatOrganisasiInternal}`} className="text-sm text-gray-600 mb-1">Posisi</label>
+                <input
+                    type="text"
+                    id={`namaPosisi${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    name={`namaPosisi${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    placeholder={dataLokal ? dataLokal.namaPosisi === null ? "Posisi dalam Organisasi" : dataLokal.namaPosisi : "Posisi dalam Organisasi"}
+                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onBlur={(e) => {
+                        setDataLokal((prev) => ({
+                            ...(prev || {
+                                idRiwayatOrganisasiInternal: "",
+                                namaOrganisasi: "",
+                                namaPosisi: "",
+                                tahunMulai: 0,
+                                tahunSelesai: 0,
+                                nomorIndukKaryawan: "",
+                            }),
+                            namaPosisi: e.target.value
+                        }))
+                    }}
+                    disabled={!editOn}
+                />
+            </div>
+            <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1" htmlFor={`tahunMulai${dataLokal?.idRiwayatOrganisasiInternal}`}>
+                    Tahun Mulai
+                </label>
+                <input
+                    type="number"
+                    id={`tahunMulai${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    name={`tahunMulai${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    placeholder={dataLokal ? dataLokal.tahunMulai === null ? "Tahun awal kepengurusan" : String(dataLokal.tahunMulai) : "Tahun awal kepengurusan"}
+                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onBlur={(e) => {
+                        setDataLokal((prev) => ({
+                            ...(prev || {
+                                idRiwayatOrganisasiInternal: "",
+                                namaOrganisasi: "",
+                                namaPosisi: "",
+                                tahunMulai: 0,
+                                tahunSelesai: 0,
+                                nomorIndukKaryawan: "",
+                            }),
+                            tahunMulai: parseInt(e.target.value)
+                        }))
+                    }}
+                    disabled={!editOn}
+                />
+            </div>
+            <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1" htmlFor={`tahunAkhir${dataLokal?.idRiwayatOrganisasiInternal}`}>
+                    Tahun Akhir
+                </label>
+                <input
+                    type="number"
+                    id={`tahunAkhir${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    name={`tahunAkhir${dataLokal?.idRiwayatOrganisasiInternal}`}
+                    placeholder={dataLokal ? dataLokal.tahunSelesai === null ? "Tahun selesai kepengurusan" : String(dataLokal.tahunSelesai) : "Tahun selesai kepengurusan"}
+                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onBlur={(e) => {
+                        setDataLokal((prev) => ({
+                            ...(prev || {
+                                idRiwayatOrganisasiInternal: "",
+                                namaOrganisasi: "",
+                                namaPosisi: "",
+                                tahunMulai: 0,
+                                tahunSelesai: 0,
+                                nomorIndukKaryawan: "",
+                            }),
+                            tahunSelesai: parseInt(e.target.value)
+                        }))
+                    }}
+                    disabled={!editOn}
+                />
+            </div>
+            </CardContent>
+        </Card>
+    )
+}
+
+export function ComiteeCard({data}:{data:{
+    idRiwayatKepanitiaan: string;
+    nomorIndukKaryawan: string;
+    namaAcara: string; 
+    namaPosisi: string;
+    tahunPelaksanaan: number;
+}}){
+    const [ editOn, setEditOn] = useState<boolean>(false);
+    const [dataLokal, setDataLokal] = useState<{
+        idRiwayatKepanitiaan: string;
+        nomorIndukKaryawan: string;
+        namaAcara: string; 
+        namaPosisi: string;
+        tahunPelaksanaan: number;
+    }>();
+    useEffect(() => {
+        setDataLokal(data);
+    }, [data]);
+
+    console.log(
+        dataLokal
+    );
+
+    return (
+        <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
+            <CardContent>
+                <div className="flex flex-col">
+                    <label htmlFor={`namaAcara${dataLokal?.idRiwayatKepanitiaan}`} className="text-sm text-gray-600 mb-1">Nama Acara</label>
+                    <input
+                        type="text"
+                        id={`namaAcara${dataLokal?.idRiwayatKepanitiaan}`}
+                        name={`namaAcara${dataLokal?.idRiwayatKepanitiaan}`}
+                        placeholder={dataLokal ? dataLokal.namaAcara === null ? "Nama Acara" : dataLokal.namaAcara : "Nama Acara"}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onBlur={(e) => {
+                            setDataLokal((prev) => ({
+                                ...(prev || {
+                                    idRiwayatKepanitiaan: "",
+                                    nomorIndukKaryawan: "",
+                                    namaAcara: "",
+                                    namaPosisi: "",
+                                    tahunPelaksanaan: 0,
+                                }),
+                                namaAcara: e.target.value
+                            }))
+                        }}
+                        disabled={!editOn}
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor={`namaPosisi${dataLokal?.idRiwayatKepanitiaan}`} className="text-sm text-gray-600 mb-1">Posisi</label>
+                    <input
+                        type="text"
+                        id={`namaPosisi${dataLokal?.idRiwayatKepanitiaan}`}
+                        name={`namaPosisi${dataLokal?.idRiwayatKepanitiaan}`}
+                        placeholder={dataLokal ? dataLokal.namaPosisi === null ? "Posisi dalam Kepanitiaan" : dataLokal.namaPosisi : "Posisi dalam Kepanitiaan"}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onBlur={(e) => {
+                            setDataLokal((prev) => ({
+                                ...(prev || {
+                                    idRiwayatKepanitiaan: "",
+                                    nomorIndukKaryawan: "",
+                                    namaAcara: "",
+                                    namaPosisi: "",
+                                    tahunPelaksanaan: 0,
+                                }),
+                                namaPosisi: e.target.value
+                            }))
+                        }}
+                        disabled={!editOn}
+                    />
+                </div>
+                <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1" htmlFor={`tahunPelaksanaan${dataLokal?.idRiwayatKepanitiaan}`}>
+                    Tahun Pelaksanaan
+                </label>
+                <input
+                    type="number"
+                    id={`tahunPelaksanaan${dataLokal?.idRiwayatKepanitiaan}`}
+                    name={`tahunPelaksanaan${dataLokal?.idRiwayatKepanitiaan}`}
+                    placeholder={dataLokal ? dataLokal.tahunPelaksanaan === null ? "Tahun kepengurusan" : String(dataLokal.tahunPelaksanaan) : "Tahun kepengurusan"}
+                    className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onBlur={(e) => {
+                        setDataLokal((prev) => ({
+                            ...(prev || {
+                                idRiwayatKepanitiaan: "",
+                                nomorIndukKaryawan: "",
+                                namaAcara: "",
+                                namaPosisi: "",
+                                tahunPelaksanaan: 0,
+                            }),
+                            tahunPelaksanaan: parseInt(e.target.value)
+                        }))
+                    }}
+                    disabled={!editOn}
+                />
+            </div>
+            </CardContent>
+        </Card>
+    )
 }

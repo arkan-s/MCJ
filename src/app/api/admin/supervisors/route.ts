@@ -18,9 +18,21 @@ export async function GET() {
     }
 
     try {
-        const returnedData = await prisma.dataSupervisors.findMany();
+        const returnedData = await prisma.dataSupervisors.findMany(
+            {
+                include:{
+                    DataLevel: true,
+                    DataBranch:  true,
+                    DataPosition: {
+                        include: {
+                            DataDepartment: true
+                        }
+                    }
+                }
+            }
+        );
 
-        return NextResponse.json({ result: returnedData, message: "Data supervisors berhaisl diambil"}, { status: 200 });
+        return NextResponse.json(returnedData, { status: 200 });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             return NextResponse.json({ error: `Prisma Error with code ${error.code}`, message: (error as any).message }, { status: 400 });

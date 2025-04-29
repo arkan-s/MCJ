@@ -177,7 +177,6 @@ model DataRiwayatKepanitiaan {
   DataKaryawan         DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatKepanitiaan_DataKaryawan")
 
   @@index([nomorIndukKaryawan])
-
 }
 
 model DataRiwayatOrganisasiInternal {

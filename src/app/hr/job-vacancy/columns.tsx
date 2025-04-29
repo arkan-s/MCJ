@@ -37,7 +37,7 @@ export const columns: ColumnDef<Supervisors>[] = [
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
-            Nama Karyawan
+            Nomor Induk Karyawan
             <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
@@ -83,11 +83,21 @@ export const columns: ColumnDef<Supervisors>[] = [
         accessorKey: "tanggalMasukKerja",
         header: "Tanggal Masuk",
         enableGlobalFilter: false,
+        cell: ({ row }) => {
+            const tanggalMasuk = new Date(row.original.tanggalMasukKerja).toISOString().split("T")[0];
+        
+            return <span className="whitespace-nowrap">{tanggalMasuk}</span>;
+        },
         },
         {
         accessorKey: "tanggalLahir",
         header: "Tanggal Lahir",
         enableGlobalFilter: false,
+        cell: ({ row }) => {
+            const tanggalLahir = new Date(row.original.tanggalLahir).toISOString().split("T")[0];
+        
+            return <span className="whitespace-nowrap">{tanggalLahir}</span>;
+        },
         },
         {
         accessorKey: "age",
@@ -99,7 +109,11 @@ export const columns: ColumnDef<Supervisors>[] = [
             Usia
             <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
-        ),
+        ),cell: ({ row }) => {
+            const age = row.original.age.toFixed(2);
+            
+            return <span className="whitespace-nowrap">{age} Tahun</span>;
+        },
         enableGlobalFilter: false,
         },
         {
@@ -109,10 +123,17 @@ export const columns: ColumnDef<Supervisors>[] = [
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
-            Usia
+            Tahun Pensiun
             <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        cell: ({ row }) => {
+            const supervisor = row.original;
+            const date = new Date(supervisor.tahunPensiun);
+            const tanggal = !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : '-';
+        
+            return <span>{tanggal}</span>;
+        },
         enableGlobalFilter: false,
         },
         {
@@ -126,6 +147,11 @@ export const columns: ColumnDef<Supervisors>[] = [
             <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        cell: ({ row }) => {
+            const MK = row.original.lengthOfService.toFixed(2);
+            
+            return <span className="whitespace-nowrap">{MK} Tahun</span>;
+        },
         enableGlobalFilter: false,
         },
         {

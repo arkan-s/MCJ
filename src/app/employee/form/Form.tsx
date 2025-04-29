@@ -1,6 +1,6 @@
 'use client'
 import { useSession,} from "next-auth/react";
-import { useState, useEffect, useId } from "react";
+import { useState, useEffect, useId, useMemo } from "react";
 import * as contextHook from "@/hooks/context/formcontext"
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
@@ -21,7 +21,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-import { branch, department, getCareerPath, level, position } from "@/utils/fetchData";
+import { branch, department, getCareerPath, getdatakaryawan, level, position } from "@/utils/fetchData";
 import { useQuery } from "@tanstack/react-query";
 
 // import * as formValidContext from "@/app/employee/form/FormValidationContext"
@@ -155,6 +155,8 @@ export function SelfCareerHistoryForm(){
             );
         }
     }
+
+    console.log(careerHistory);
 
 
 
@@ -413,6 +415,8 @@ export function SelfCareerHistoryForm(){
             </div>
         );                      
     }
+
+    
 
     return (
         <div className="flex flex-col w-full h-fit px-2 pb-2">
@@ -1291,8 +1295,8 @@ export function EmpCareerChoiceComponents(){
     const interested = (val:boolean) => {
         setEmpCareerChoice(
             {   careerDevWill: val,
-                rotationWill: null,
-                crossDeptWill: null
+                rotationWill: val ? null : false,
+                crossDeptWill: val ? null : false
             }
         );
         
@@ -1365,6 +1369,14 @@ export function CareerofMyChoiceComponents(){
     const { careerOfMyChoice, setCareerOfMyChoice } = contextHook.useCareerofMyChoice()!;
     const { empCareerChoice, setEmpCareerChoice } = contextHook.useEmpCareerChoice()!;
 
+    const { data: empData, isLoading: empLoading, isError: empError } = useQuery({
+        queryKey: ['datakaryawan'],
+        queryFn: () => getdatakaryawan(session?.user.nik),
+        retry: 3, 
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity, 
+    });
+
     const { data: careerPathData, isLoading: careerPathLoading, isError: careerPathError } = useQuery({
         queryKey: ["careerpath"],
         queryFn: getCareerPath,
@@ -1372,31 +1384,36 @@ export function CareerofMyChoiceComponents(){
         retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
         staleTime: Infinity,
     });
-    const [ shortTerms, setShortTerms ] = useState<any[] | null>(null);
+    // const [ shortTerms, setShortTerms ] = useState<any[] | null>(null);
     const [ longTerms, setLongTerms ] = useState<any[] | null>(null)
     
-    useEffect(()=>{
-        let data;
-        if (empCareerChoice?.crossDeptWill === null) {
-            return;
-        }
-        if (empCareerChoice?.crossDeptWill === false) {
-            data = careerPathData.filter((e: any)=> e.startCareer.dept === session?.user.dept) 
-        }else{
-            data = careerPathData
-        }
-        setShortTerms(data);
-    }
-    ,[empCareerChoice, careerPathData])
-    useEffect(()=>{
-        let data;
-        if(careerOfMyChoice?.short === null){
-            return;
-        }else if(careerOfMyChoice?.short !== null){
-            data = careerPathData.filter((e: any)=> e.existing === careerPathData.find((e: any)=> e.idCP === careerOfMyChoice?.short).future);
-        }
-        setLongTerms(data);
-    }, [careerOfMyChoice?.short, empCareerChoice, careerPathData])
+    // useEffect(()=>{
+    //     let data;
+    //     if (empCareerChoice?.crossDeptWill === false) {
+    //         data = careerPathData.filter((e: any)=> e.existing === empData.position && e.desCareer.dept === session?.user.dept) 
+    //     }else{
+    //         data = careerPathData.filter((e: any)=> e.existing === empData.position)
+    //     }
+    //     setShortTerms(data);
+    // }
+    // ,[empCareerChoice, careerPathData, empData, empLoading, empError])
+    // useEffect(()=>{
+    //     let data = null;
+    //     if(careerOfMyChoice?.short === null){
+    //         return;
+    //     }else if(careerOfMyChoice?.short !== null){
+    //         if (empCareerChoice?.crossDeptWill === false){
+    //             data = careerPathData.filter((e: any)=> 
+    //                     e.existing === careerPathData.find((e: any)=> 
+    //                                     e.idCP === careerOfMyChoice?.short).future && e.desCareer.dept === session?.user.dept);
+    //         } else {
+    //             data = careerPathData.filter((e: any)=> 
+    //                 e.existing === careerPathData.find((e: any)=> 
+    //                                 e.idCP === careerOfMyChoice?.short).future);
+    //         }
+    //     }
+    //     setLongTerms(data);
+    // }, [careerOfMyChoice?.short, empCareerChoice, careerPathData])
     
 
 
@@ -1417,9 +1434,130 @@ export function CareerofMyChoiceComponents(){
         }
     }
 
+    const shortTerms = useMemo(() => {
+        if (!careerPathData || !empData) return null;
+    
+        return careerPathData.filter((e: any) => {
+            const samePosition = e.existing === empData.position;
+            const sameDept = e.desCareer?.dept === session?.user?.dept;
+    
+            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
+        });
+    }, [careerPathData, empData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
+    
+    
+    useEffect(() => {
+        if (!careerPathData || !careerOfMyChoice?.short) return;
+    
+        const shortSelected = careerPathData.find((e: any) => e.idCP === careerOfMyChoice.short);
+        if (!shortSelected) return;
+    
+        const futurePosition = shortSelected.future;
+    
+        const filtered = careerPathData.filter((e: any) => {
+            const samePosition = e.existing === futurePosition;
+            const sameDept = e.desCareer?.dept === session?.user?.dept;
+    
+            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
+        });
+    
+        setLongTerms(filtered);
+    }, [careerOfMyChoice?.short, careerPathData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
+    
+
+
+    console.log(shortTerms);
+    console.log(longTerms);
     console.log(careerOfMyChoice);
-    function CareerOfMyChoiceComp(){
-        return (
+    // function CareerOfMyChoiceComp(){
+    //     return (
+    //         <div className={`block flex-col shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
+    //             <div className="flex flex-wrap justify-between gap-1 mb-5"> 
+    //                 <div className="flex flex-col gap-1 w-full">
+    //                     <label htmlFor={`short`}><b>Short Term Career Plan</b></label>
+    //                     <Select
+    //                         onValueChange={(value) => {
+    //                                 setCareerOfMyChoice((prev) => {
+    //                                     return { long: prev?.long === undefined ? null : prev?.long, short: value };
+    //                                 });
+    //                             }
+    //                         }
+    //                         value={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+    //                     >
+    //                         <SelectTrigger className="border-2 border-zinc-300 w-full">
+    //                             <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"}/>
+    //                         </SelectTrigger>
+    //                         <SelectContent>
+    //                             {careerPathLoading ? 
+    //                                 (
+    //                                     <div className="flex justify-center items-center">
+    //                                         <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+    //                                         <p className="ml-2 text-sm text-gray-500">Loading...</p>
+    //                                     </div>
+    //                                 ) : careerPathError ? (
+    //                                     <div className="flex justify-center items-center">
+    //                                         <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+    //                                     </div>
+    //                                 ) : (
+    //                                     shortTerms?.map((br: any, index: number) => (
+    //                                         br?.desCareer ? (
+    //                                             <SelectItem key={index} value={br.idCP}>
+    //                                                 {br.desCareer.namaPosition}
+    //                                             </SelectItem>
+    //                                         ) : null
+    //                                     ))
+    //                                 )
+    //                             }
+    //                         </SelectContent>
+    //                     </Select>
+    //                 </div>
+    //             </div>
+    //             <div className="flex flex-wrap justify-between gap-1"> 
+    //                 <div className="flex flex-col gap-1 w-full">
+    //                     <label htmlFor={`long`}><b>Long Term Career Plan</b></label>
+    //                     <Select
+    //                         onValueChange={(value) => {
+    //                                 setCareerOfMyChoice((prev) => {
+    //                                     return { short: prev?.short === undefined ? null : prev?.short, long: value };
+    //                                 });
+    //                             }
+    //                         }
+    //                         value={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+    //                     >
+    //                         <SelectTrigger className="border-2 border-zinc-300 w-full">
+    //                             <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"} />
+    //                         </SelectTrigger>
+    //                         {longTerms && longTerms.length > 0 && careerOfMyChoice?.short && (<SelectContent>
+    //                             {careerPathLoading ? 
+    //                                 (
+    //                                     <div className="flex justify-center items-center">
+    //                                         <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+    //                                         <p className="ml-2 text-sm text-gray-500">Loading...</p>
+    //                                     </div>
+    //                                 ) : careerPathError ? (
+    //                                     <div className="flex justify-center items-center">
+    //                                         <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+    //                                     </div>
+    //                                 ) : (
+    //                                     longTerms?.map((br: any, index: number) => (
+    //                                         br?.desCareer ? (
+    //                                             <SelectItem key={index} value={br.idCP}>
+    //                                                 {br.desCareer.namaPosition}
+    //                                             </SelectItem>
+    //                                         ) : null
+    //                                     ))                                        
+    //                                 )
+    //                             }
+    //                         </SelectContent>)}
+    //                     </Select>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     )
+    // }
+
+    return (
+        <form>
             <div className={`block flex-col shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
                 <div className="flex flex-wrap justify-between gap-1 mb-5"> 
                     <div className="flex flex-col gap-1 w-full">
@@ -1431,10 +1569,10 @@ export function CareerofMyChoiceComponents(){
                                     });
                                 }
                             }
-                            defaultValue={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+                            value={(careerOfMyChoice && careerOfMyChoice.short) || ""}
                         >
                             <SelectTrigger className="border-2 border-zinc-300 w-full">
-                                <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"} />
+                                <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"}/>
                             </SelectTrigger>
                             <SelectContent>
                                 {careerPathLoading ? 
@@ -1449,7 +1587,11 @@ export function CareerofMyChoiceComponents(){
                                         </div>
                                     ) : (
                                         shortTerms?.map((br: any, index: number) => (
-                                            <SelectItem key={index} value={br.idCP}>{br.desCareer.namaPosition}</SelectItem>
+                                            br?.desCareer ? (
+                                                <SelectItem key={index} value={br.idCP}>
+                                                    {br.desCareer.namaPosition}
+                                                </SelectItem>
+                                            ) : null
                                         ))
                                     )
                                 }
@@ -1467,12 +1609,12 @@ export function CareerofMyChoiceComponents(){
                                     });
                                 }
                             }
-                            defaultValue={(careerOfMyChoice && careerOfMyChoice.short) || ""}
+                            value={(careerOfMyChoice && careerOfMyChoice.short) || ""}
                         >
                             <SelectTrigger className="border-2 border-zinc-300 w-full">
                                 <SelectValue placeholder={careerOfMyChoice && careerOfMyChoice.short || "Pilih Cabang"} />
                             </SelectTrigger>
-                            <SelectContent>
+                            {longTerms && longTerms.length > 0 && careerOfMyChoice?.short && (<SelectContent>
                                 {careerPathLoading ? 
                                     (
                                         <div className="flex justify-center items-center">
@@ -1485,21 +1627,19 @@ export function CareerofMyChoiceComponents(){
                                         </div>
                                     ) : (
                                         longTerms?.map((br: any, index: number) => (
-                                            <SelectItem key={index} value={br.idCP}>{br.desCareer.namaPosition}</SelectItem>
-                                        ))
+                                            br?.desCareer ? (
+                                                <SelectItem key={index} value={br.idCP}>
+                                                    {br.desCareer.namaPosition}
+                                                </SelectItem>
+                                            ) : null
+                                        ))                                        
                                     )
                                 }
-                            </SelectContent>
+                            </SelectContent>)}
                         </Select>
                     </div>
                 </div>
             </div>
-        )
-    }
-
-    return (
-        <form>
-            <CareerOfMyChoiceComp></CareerOfMyChoiceComp>
         </form>
     )
 }

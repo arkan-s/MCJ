@@ -35,6 +35,13 @@ export default function AccountControlEmployee() {
         queryFn: fetchData,
     });
 
+    // const dataSPV = data.map((e:any)=>
+    // {
+    //     ...e,
+    //     tanggalMasuk:
+    //     tanggalLahir: 
+    // })
+
     if (isLoading) {
         return <div className="text-center mt-10">Loading...</div>;
     }
@@ -44,7 +51,7 @@ export default function AccountControlEmployee() {
     }
 
     return (
-        <div className="container mx-auto pt-1">
+        <div className="container mx-auto overflow-y-scroll pt-1">
             <DataTable columns={columns} data={data || []} addDataURL="/add-supervisors" />
         </div>
     );

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { getdatakaryawan, updateDataKaryawan } from "@/utils/fetchData";
 import Image from "next/image";
@@ -39,8 +39,20 @@ export default function QuestionnaireForm () {
             </div>
         )
     }
-    
 
+    const { data: careerData, isLoading: careerLoading, isError: careerError } = useQuery({
+        queryKey: ["careerHistory", session?.user.nik],
+        queryFn: async () => {
+            const res = await fetch(`/api/datakaryawan/${session?.user.nik}/datariwayatkarir`);
+            if (!res.ok) {
+                throw new Error("Failed to fetch career history data");
+            }
+            return await res.json();
+        },
+        retry: 3,
+        retryDelay: attemptIndex => attemptIndex * 1500,
+        enabled: !!session?.user.nik,
+    });
 
     const { data: dataKaryawan, isLoading: karyawanLoading, isError: karyawanError } = useQuery({
         queryKey: ['datakaryawan'],
@@ -96,6 +108,59 @@ export default function QuestionnaireForm () {
         }
     }, [dataQuestionnaires, questionnaires, questionnairesLoading, questionnairesError, setQuestionnaires]);
     
+    const mutationFn = async () => {
+        // 1. Ambil dari cache
+        let prev_data: any = queryClient.getQueryData(['datakaryawan']);
+
+        if (!prev_data) {
+            prev_data = await queryClient.fetchQuery({
+                queryKey: ['datakaryawan'],
+                queryFn: () => getdatakaryawan(session?.user.nik),
+                retry: 3, 
+                retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+                staleTime: Infinity,
+            });
+        }
+
+        // 2. Transform datanya
+        const updatedData = {
+            namaKaryawan: prev_data.namaKaryawan,
+            tanggalLahir: prev_data.tanggalLahir,
+            tanggalMasukKerja: prev_data.tanggalMasukKerja,
+            gender: prev_data.gender,
+            personnelArea: prev_data.personnelArea,
+            position: prev_data.position,
+            personnelSubarea: prev_data.personnelSubarea,
+            levelPosition: prev_data.levelPosition,
+            pend: prev_data.pend,
+            namaSekolah: prev_data.namaSekolah,
+            namaJurusan: prev_data.namaJurusan,
+            age: (new Date().getTime() - new Date(prev_data.tanggalLahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25),
+            lengthOfService: (new Date().getTime() - new Date(prev_data.tanggalMasukKerja).getTime()) / (1000 * 60 * 60 * 24 * 365.25),
+            formFilled: prev_data.formFilled,
+            questionnaire: 1,
+            createdAt: prev_data.createdAt,
+            lastUpdatedAt: new Date(),
+        };
+
+        // 3. Panggil API update
+        return updateDataKaryawan(prev_data.nomorIndukKaryawan, updatedData);
+    };
+
+    const { mutate, isPending, isError, error, reset } = useMutation({
+        mutationFn, 
+        onError: (err: any) => {
+            console.error('Error updating data: ', err);
+        },
+        onSuccess: () => {
+            console.log('Data berhasil diupdate');
+            // Kalau mau refresh cache juga bisa:
+            queryClient.invalidateQueries({ queryKey: ['datakaryawan'] });
+        },
+        retry: 3,
+        retryDelay: (attempt: any) => Math.min(1000 * 2 ** attempt, 30000),
+    });
+
     // DATA DARI PAGINATION
     type questionnairesFE = { /* Data Exposed from DB (get per dept) */
         type: "form" | "assessment" | "question";
@@ -190,6 +255,8 @@ export default function QuestionnaireForm () {
 
     const [ submitNotice, setSubmitNotice] = useState<{title: string, message: string, popup: boolean, color: "error"|"success"|""}>({title: "", message: "", popup: false, color: ""});
     const [ submitLoading, setSubmitLoading ] = useState<boolean>(false);
+
+    
     
     async function submitAll(){
         setSubmitLoading(true);
@@ -205,7 +272,6 @@ export default function QuestionnaireForm () {
 
     
         const response = questionnaires.map((form: any) => ({
-            idResp: createId(),
             id_form: form.IDForm,
             nomorIndukKaryawan: dataKaryawan?.nomorIndukKaryawan,
         }));
@@ -312,10 +378,11 @@ export default function QuestionnaireForm () {
             };
         });
         if (datakaryawanUpdate.error) {
-            setSubmitNotice({title: datakaryawanUpdate.message, message: datakaryawanUpdate.details, popup: true, color: "error"}); 
             setSubmitLoading(false);
+            setSubmitNotice({title: datakaryawanUpdate.message, message: datakaryawanUpdate.details, popup: true, color: "error"}); 
             return;
         }
+        mutate();
         setSubmitLoading(false);
         setSubmitNotice({title: "Berhasil Submit", message: "Jawaban berhasil disimpan", popup: true, color: "success"});
 

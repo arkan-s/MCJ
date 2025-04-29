@@ -4,7 +4,7 @@ import { branch, department, getData, getdatakaryawan } from "@/utils/fetchData"
 import { useQuery } from "@tanstack/react-query";
 import { ColumnFiltersState, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { useSession } from "next-auth/react"
-import { JVColumn } from "./column";
+import { JVColumn } from "@/components/shared/columns/jobvacancy"; 
 import { useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { Input } from "@/components/ui/input";
@@ -116,7 +116,7 @@ export default function JobVacancy(){
             <div className="flex flex-wrap md:flex-nowrap md:justify-between items-center justify-center gap-4 p-4">
                 <input
                     placeholder="Cari Posisi..."
-                    value={JobVacancyTable.getColumn("position")?.getFilterValue() as string | number | readonly string[] | undefined}
+                    value={JobVacancyTable.getColumn("position")?.getFilterValue() as string | number | readonly string[] || ""}
                     onChange={(e) => JobVacancyTable.getColumn("position")?.setFilterValue(String(e.target.value))}
                     className="w-full md:w-[30%] h-10 border-2 border-blue-500 rounded-lg text-center"
                 />
