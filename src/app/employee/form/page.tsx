@@ -17,6 +17,7 @@ import {
 import { getdatakaryawan } from "@/utils/fetchData";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 const usePrevious = <T,>(val: T) => {
     const ref = useRef<undefined | T>(undefined);
@@ -92,8 +93,9 @@ export default function Form() {
 
     if (karyawanLoading) {
         return (
-            <div className="grow flex flex-col px-5 py-5 w-full md:px-[5%] md:pt-[5%] md:pb-[2%] z-10 overflow-x-hidden">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-t-zinc-700 border-b-zinc-700 border-transparent"></div>
+            <div className="flex flex-col items-center justify-center w-full py-20">
+                <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
+                <p className="mt-4 text-lg font-semibold">Loading data...</p>
             </div>
         );
     }

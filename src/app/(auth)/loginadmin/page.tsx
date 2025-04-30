@@ -8,15 +8,22 @@ import { useActionState, useEffect } from "react";
 
 export default function login() {
 
+    // ====== Must-Fetched Data ======
+
+    // ====== Initialize and Re Component's States ======
     const [state, formAction] = useActionState(adminSignInAction, null);
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //     console.log("Cek sesuatu setiap 5 detik...");
-    //     }, 5000); // 5000 ms = 5 detik
+
+    // ====== Initialize and Re Other States ======
+
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
     
-    //     return () => clearInterval(interval); // Bersihkan interval saat komponen unmount
-    // }, []);
-    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return(
         <div className={`${bitter.className} block h-full flex justify-center items-center bg-blue-50`}>
 

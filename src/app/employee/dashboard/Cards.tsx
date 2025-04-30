@@ -7,6 +7,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DataRiwayatKarir } from "@/types/datatype-employee";
 import { putData } from "@/utils/employeeAPI";
 import { branch, department, level, position } from "@/utils/fetchData";
 import { useQuery } from "@tanstack/react-query";
@@ -15,17 +16,7 @@ import { useEffect, useState } from "react"
 
 export function CareerHistoryCard({data}:
     {
-        data:{
-            idCareerHistory: string,
-            nomorIndukKaryawan: string,
-            personnelArea: string,
-            personnelSubarea: string,
-            position: number,
-            levelPosition: string,
-            tanggalMulai: Date | null,
-            tanggalBerakhir: Date | null,
-            status: number,
-        }
+        data:DataRiwayatKarir
     }
 ){    
     const { data: session } = useSession();

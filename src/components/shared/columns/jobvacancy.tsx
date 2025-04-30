@@ -1,40 +1,8 @@
+import { JobVacancy } from "@/types/datatype-jobvacancy";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
-export type jobVacancy = {
-    idJV: string;
-    personnelArea: string;
-    personnelSubarea: string;
-    position: number;
-    levelPosition: string;
-
-    available: Date;
-
-    JobSummary: string | null;
-    JobDescription: string | null;
-
-    DataBranch: {
-        idBranch: string;
-        namaBranch: string;
-        alamat: string | null;
-    };
-    DataPosition: {
-        idPosition: number;
-        namaPosition: string;
-        
-        DataDepartment: {
-            idDepartment: string;
-            namaDepartment: string;
-        }
-    }
-
-    DataLevel: {
-        idLevel: string;
-        namaLevel: string;
-    }
-}
-
-export const JVColumn: ColumnDef<jobVacancy>[] = [
+export const JVColumn: ColumnDef<JobVacancy>[] = [
     {
         accessorKey: "idJV",
         header: "ID Job Vacancy",

@@ -17,24 +17,11 @@ export async function GET(req: NextRequest, {params}:{params:{nomorIndukKaryawan
                 nomorIndukKaryawan: nomorIndukKaryawan
             },
             include: {
-                DataBranch: {
-                    select: {
-                        namaBranch: true,
-                    },
-                },
-                DataLevel: {
-                    select: {
-                        namaLevel: true,
-                    },
-                },
+                DataBranch: true,
+                DataLevel: true,
                 DataPosition: {
-                    select: {
-                        namaPosition: true,
-                        DataDepartment: {
-                            select:{
-                                namaDepartment: true,
-                            }
-                        }
+                    include: {
+                        DataDepartment: true
                     },
                 },
                 DataRiwayatKarir: true,
@@ -44,9 +31,11 @@ export async function GET(req: NextRequest, {params}:{params:{nomorIndukKaryawan
                 DataRiwayatGKM: true,
                 DataMentorWanted: true,
                 DataTrainingWanted: true,
-                DataCareerPlan: true
+                EmpCareerChoice: true,
+                DataCareerPlan: true,
             },
         });
+        console.log("DATAKARYAWAN", datakaryawan);
         return NextResponse.json(datakaryawan, { status: 200 });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -54,7 +43,6 @@ export async function GET(req: NextRequest, {params}:{params:{nomorIndukKaryawan
         } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
             console.error('Unknown Prisma error:', error.message);
             return NextResponse.json({ error: `Unknown Prisma error with message : ${error.message}`, message: (error as any).message }, { status: 500 });
-
         } else {
             return NextResponse.json({ error: "Internal Server Error", message: (error as any).message }, { status: 500 });
         }

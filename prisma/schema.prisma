@@ -49,17 +49,17 @@ model DataKaryawan {
   DataPosition                  DataPosition                    @relation(fields: [position], references: [idPosition], map: "FK_DataKaryawan_DataPosition", onDelete: NoAction)
   
   
-  DataCareerPlan                DataCareerPlan[]
-  DataMentorWanted              DataMentorWanted[]
-  DataRiwayatGKM                DataRiwayatGKM[]
   DataRiwayatKarir              DataRiwayatKarir[]
   DataRiwayatKepanitiaan        DataRiwayatKepanitiaan[]
   DataRiwayatOrganisasiInternal DataRiwayatOrganisasiInternal[]
   DataRiwayatProject            DataRiwayatProject[]
   DataTrainingWanted            DataTrainingWanted[]
-  EmpCareerChoice               EmpCareerChoice[]               @relation(map: "FK_EmpCareerChoice_DataKaryawan")
+  DataCareerPlan                DataCareerPlan?
+  DataMentorWanted              DataMentorWanted?
+  EmpCareerChoice               EmpCareerChoice?                     @relation(map: "FK_EmpCareerChoice_DataKaryawan")
+  DataRiwayatGKM                DataRiwayatGKM?                  
 
-  user               User        @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan],  onDelete: Cascade)
+  user                          User        @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan],  onDelete: Cascade)
 
   Responses Responses[] @relation(map: "FK_Responses_DataKaryawan")
 
@@ -137,20 +137,18 @@ model DataMentorWanted {
   nomorIndukKaryawan String       @id @db.VarChar(10) 
   namaMentor         String?      @db.VarChar(100)
   posisiMentor       String?      @db.VarChar(100)
-  cabangMentor       String?      @db.VarChar(10)
+  cabangMentor       String?      @db.VarChar(100)
 
   DataKaryawan       DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataMentorWanted_DataKaryawan")
 }
-
 
 model DataRiwayatGKM {
   nomorIndukKaryawan  String       @id @db.VarChar(10)
   banyakKeikutsertaan Int?
   posisiTertinggi     String?       @db.VarChar(50)
 
-  DataKaryawan        DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, map: "FK_DataRiwayatGKM_DataKaryawan")
+  DataKaryawan        DataKaryawan @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], onDelete: Cascade, onUpdate: Cascade, map: "FK_DataRiwayatGKM_DataKaryawan")
 }
-
 
 model DataRiwayatKarir {
   idCareerHistory    String       @id @default(cuid())
@@ -352,6 +350,7 @@ model JobInterest {
 
   nomorIndukKaryawan  String          @db.VarChar(10)
   idJV                String
+  createdAt           DateTime        @default(now())
 
   karyawan            DataKaryawan    @relation(fields: [nomorIndukKaryawan], references: [nomorIndukKaryawan], map: "FK_JobInterest_DataKaryawan", onDelete: Cascade)
   jobVacancy          JobVacancy      @relation(fields: [idJV], references: [idJV], map: "FK_JobInterest_JobVacancy", onDelete: NoAction, onUpdate: NoAction)

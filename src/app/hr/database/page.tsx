@@ -31,11 +31,15 @@ import { branch, department, getCareerPath, level, position, postData } from "@/
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { CPDataTable } from "@/components/ui/datashow/cp-table";
-import { branchCol, careerPathCol, departmentCol, levelCol, positionCol } from "./columns";
 import { PositionDataTable } from "@/components/ui/datashow/position-table";
 import { DepartmentDataTable } from "@/components/ui/datashow/dept-table";
 import { BranchDataTable } from "@/components/ui/datashow/branch-table";
 import { LevelDataTable } from "@/components/ui/datashow/level-table";
+import { branchCol } from "@/components/shared/columns/branch";
+import { departmentCol } from "@/components/shared/columns/department";
+import { positionCol } from "@/components/shared/columns/position";
+import { levelCol } from "@/components/shared/columns/level";
+import { careerPathCol } from "@/components/shared/columns/careerpath";
 
 
 export default function Database() {
