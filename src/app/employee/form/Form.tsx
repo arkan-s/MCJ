@@ -23,19 +23,15 @@ import {
 
 import { branch, department, getCareerPath, getdatakaryawan, level, position } from "@/utils/fetchData";
 import { useQuery } from "@tanstack/react-query";
+import LoadingFullPage from "@/components/shared/loading/loading-fullpage";
 
 // import * as formValidContext from "@/app/employee/form/FormValidationContext"
 
 export function SelfCareerHistoryForm(){
-
-    const { careerHistory, setCareerHistory } = contextHook.useCareerHistory()!;
     const { data: session, status } = useSession();
     const nik = session?.user.nik;
 
-    const [isLoading, setIsLoading] = useState(true);
-
-    const [deleteUnable, setUnableDelete] = useState(false);
-
+    // ====== Must-Fetched Data ======
     const { data: careerData, isLoading: careerLoading, isError: careerError } = useQuery({
         queryKey: ["careerHistory", nik],
         queryFn: async () => {
@@ -49,17 +45,6 @@ export function SelfCareerHistoryForm(){
         retryDelay: attemptIndex => attemptIndex * 1500,
         enabled: !!nik,
     });
-    
-    useEffect(() => {
-        if (careerData) {
-            setCareerHistory([{...careerData[0], position: String(careerData[0].position), tanggalMulai: new Date(careerData[0].tanggalMulai)}]);
-        } else if (careerError) {
-            setCareerHistory([
-            { ...contextHook.initialCareerHistoryVal[0], status: 1 },
-            ]);
-        }
-        setIsLoading(false);
-    }, [careerData, careerError]);
 
     const { data: branchData, isLoading: branchLoading, isError: branchError } = useQuery({
         queryKey: ["cabang"],
@@ -93,58 +78,82 @@ export function SelfCareerHistoryForm(){
         retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
         staleTime: Infinity, 
     });
-    
+
+    // ====== Initialize and Re Component's States ======
+    const [isLoading, setIsLoading] = useState(true);
+    const [deleteUnable, setUnableDelete] = useState(false);
+
+    // ====== Initialize and Re Other States ======
+    const { careerHistory, setCareerHistory } = contextHook.useCareerHistory()!;
+    useEffect(() => {
+        if (careerData) {
+            if (careerHistory) {
+                setCareerHistory([...careerHistory]);
+                setIsLoading(false);    
+                return;
+            }
+            setCareerHistory([{...careerData[0], position: String(careerData[0].position), tanggalMulai: new Date(careerData[0].tanggalMulai)}]);
+        } else if (careerError) {
+            setCareerHistory([
+            { ...contextHook.initialCareerHistoryVal[0], status: 1 },
+            ]);
+        }
+        setIsLoading(false);
+    }, [careerData, careerError]);
+
     const createCareerHistory = () => {
         setCareerHistory(careerHistory === null ?
             contextHook.initialCareerHistoryVal :
             [...careerHistory, {...contextHook.initialCareerHistoryVal[0], id: createId()}]
         )
     }
+
     const updateCareerHistory = (valString: string = "", valDate: Date | null, whatdata: string, indexComp: string)=>{
-            const newCareerHistory = careerHistory === undefined ? contextHook.initialCareerHistoryVal : careerHistory?.map(
-                (data) => {
-                    if (data.id === indexComp) {
-                        switch (whatdata) {
-                            case "posisi":
-                                return {
-                                    ...data,
-                                    position: valString
-                                }
-                            case "level":
-                                return {
-                                    ...data,
-                                    levelPosition: valString
-                                }
-                            case "cabang":
-                                return {
-                                    ...data,
-                                    personnelArea: valString
-                                }
-                            case "dept":
-                                return {
-                                    ...data,
-                                    personnelSubarea: valString
-                                }
-                            case "startDate":
-                                return {
-                                    ...data,
-                                    tanggalMulai: valDate
-                                }
-                            case "endDate":
-                                return {
-                                    ...data,
-                                    tanggalBerakhir: valDate
-                                }
-                            default:
-                                return data;
-                        }
-                    } else {
-                        return data;
+        const newCareerHistory = careerHistory === undefined ? contextHook.initialCareerHistoryVal : careerHistory?.map(
+            (data) => {
+                if (data.id === indexComp) {
+                    switch (whatdata) {
+                        case "posisi":
+                            return {
+                                ...data,
+                                position: valString
+                            }
+                        case "level":
+                            return {
+                                ...data,
+                                levelPosition: valString
+                            }
+                        case "cabang":
+                            return {
+                                ...data,
+                                personnelArea: valString
+                            }
+                        case "dept":
+                            return {
+                                ...data,
+                                personnelSubarea: valString
+                            }
+                        case "startDate":
+                            return {
+                                ...data,
+                                tanggalMulai: valDate
+                            }
+                        case "endDate":
+                            return {
+                                ...data,
+                                tanggalBerakhir: valDate
+                            }
+                        default:
+                            return data;
                     }
+                } else {
+                    return data;
                 }
-            )
-            return setCareerHistory(newCareerHistory === undefined ? contextHook.initialCareerHistoryVal : newCareerHistory)
-        }
+            }
+        )
+        return setCareerHistory(newCareerHistory === undefined ? contextHook.initialCareerHistoryVal : newCareerHistory)
+    }
+
     const removeCareerHistory = (index:string) => {
         const check = careerHistory?.find((e)=>e.id === index);
         if(check?.status===1){
@@ -156,10 +165,7 @@ export function SelfCareerHistoryForm(){
         }
     }
 
-    console.log(careerHistory);
-
-
-
+    // ====== Initialize and Re Component's Components ======
     function CHCard({indexComp}:{indexComp:string}){
         const [tempValue, setTempValue] = useState(careerHistory?.find((e) => e.id === indexComp)?.tanggalMulai || undefined);
         const [tempEValue, setTempEValue] = useState(careerHistory?.find((e) => e.id === indexComp)?.tanggalBerakhir || undefined);
@@ -397,16 +403,23 @@ export function SelfCareerHistoryForm(){
         );
     }
 
-
+    // ====== Consoling ======
+    console.log(careerHistory);
+    console.log("isLoading, ", isLoading);
+    console.log("careerLoading, ", careerLoading);
+    console.log("branchLoading, ", branchLoading);
+    console.log("departmentLoading, ", departmentLoading);
+    console.log("positionLoading, ", positionLoading);
+    console.log("levelLoading, ", levelLoading);
+    
+    // ====== Loading Handling ======
     if (isLoading || careerLoading || branchLoading || departmentLoading || positionLoading || levelLoading) {
         return (
-            <div className="flex flex-col justify-center items-center w-full h-fit px-2 pb-2">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
-                <p className="text-lg font-semibold">Loading data...</p>
-            </div>
+            <LoadingFullPage/>
         );
     }
-    
+
+    // ====== Error Handling ======
     if (careerError || branchError || departmentError || positionError || levelError) {
         return (
             <div className="flex flex-col justify-center items-center w-full h-fit px-2 pb-2">
@@ -416,8 +429,7 @@ export function SelfCareerHistoryForm(){
         );                      
     }
 
-    
-
+    // ====== Return ======
     return (
         <div className="flex flex-col w-full h-fit px-2 pb-2">
                 <form>
@@ -1369,23 +1381,58 @@ export function CareerofMyChoiceComponents(){
     const { careerOfMyChoice, setCareerOfMyChoice } = contextHook.useCareerofMyChoice()!;
     const { empCareerChoice, setEmpCareerChoice } = contextHook.useEmpCareerChoice()!;
 
+    // ====== Must-Fetched Data ======
     const { data: empData, isLoading: empLoading, isError: empError } = useQuery({
         queryKey: ['datakaryawan'],
         queryFn: () => getdatakaryawan(session?.user.nik),
-        retry: 3, 
-        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
-        staleTime: Infinity, 
-    });
-
-    const { data: careerPathData, isLoading: careerPathLoading, isError: careerPathError } = useQuery({
-        queryKey: ["careerpath"],
-        queryFn: getCareerPath,
-        retry: 3, 
+        retry: 3,
         retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
         staleTime: Infinity,
     });
+    const { data: careerPathData, isLoading: careerPathLoading, isError: careerPathError } = useQuery({
+        queryKey: ["careerpath"],
+        queryFn: getCareerPath,
+        retry: 3,
+        retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,
+    });
+
+    // ====== Initialize and Re Component's States ======
+    const shortTerms = useMemo(() => {
+        if (!careerPathData || !empData) return null;
+        return careerPathData.filter((e: any) => {
+            const samePosition = e.existing === empData.position;
+            const sameDept = e.desCareer?.dept === session?.user?.dept;
+            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
+        });
+    }, [careerPathData, empData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
+    console.log("careerPathData", careerPathData);
+    console.log("empData", empData);
+    console.log("shortTerms", shortTerms);
+
+
     // const [ shortTerms, setShortTerms ] = useState<any[] | null>(null);
-    const [ longTerms, setLongTerms ] = useState<any[] | null>(null)
+    
+    const [ longTerms, setLongTerms ] = useState<any[] | null>(null);
+
+    useEffect(() => {
+        if (!careerPathData || !careerOfMyChoice?.short) return;
+    
+        const shortSelected = careerPathData.find((e: any) => e.idCP === careerOfMyChoice.short);
+        if (!shortSelected) return;
+    
+        const futurePosition = shortSelected.future;
+    
+        const filtered = careerPathData.filter((e: any) => {
+            const samePosition = e.existing === futurePosition;
+            const sameDept = e.desCareer?.dept === session?.user?.dept;
+    
+            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
+        });
+    
+        setLongTerms(filtered);
+    }, [careerOfMyChoice?.short, careerPathData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
+    
     
     // useEffect(()=>{
     //     let data;
@@ -1414,61 +1461,21 @@ export function CareerofMyChoiceComponents(){
     //     }
     //     setLongTerms(data);
     // }, [careerOfMyChoice?.short, empCareerChoice, careerPathData])
-    
 
+    // ====== Initialize and Re Other States ======
 
-    const handleOnBlur = (val: string = "", whatdata: string)=>{
-        switch(whatdata){
-            case "short":
-                setCareerOfMyChoice((prev) => {
-                    if (!prev) return {...contextHook.initialCareerOfMyChoiceVal, short: val};
-                    return { ...prev, short: val };
-                });
-                break;
-            case "long":
-                setCareerOfMyChoice((prev) => {
-                    if (!prev) return {...contextHook.initialCareerOfMyChoiceVal, long: val};
-                    return { ...prev, long: val };
-                });
-                break;
-        }
-    }
+    // ====== Initialize and Re Component's Components ======
 
-    const shortTerms = useMemo(() => {
-        if (!careerPathData || !empData) return null;
-    
-        return careerPathData.filter((e: any) => {
-            const samePosition = e.existing === empData.position;
-            const sameDept = e.desCareer?.dept === session?.user?.dept;
-    
-            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
-        });
-    }, [careerPathData, empData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
-    
-    
-    useEffect(() => {
-        if (!careerPathData || !careerOfMyChoice?.short) return;
-    
-        const shortSelected = careerPathData.find((e: any) => e.idCP === careerOfMyChoice.short);
-        if (!shortSelected) return;
-    
-        const futurePosition = shortSelected.future;
-    
-        const filtered = careerPathData.filter((e: any) => {
-            const samePosition = e.existing === futurePosition;
-            const sameDept = e.desCareer?.dept === session?.user?.dept;
-    
-            return empCareerChoice?.crossDeptWill === false ? samePosition && sameDept : samePosition;
-        });
-    
-        setLongTerms(filtered);
-    }, [careerOfMyChoice?.short, careerPathData, empCareerChoice?.crossDeptWill, session?.user?.dept]);
-    
-
-
+    // ====== Consoling ======
     console.log(shortTerms);
     console.log(longTerms);
     console.log(careerOfMyChoice);
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
     // function CareerOfMyChoiceComp(){
     //     return (
     //         <div className={`block flex-col shadow-lg p-3 w-auto h-auto bg-white rounded-lg`}>
@@ -1563,7 +1570,8 @@ export function CareerofMyChoiceComponents(){
                     <div className="flex flex-col gap-1 w-full">
                         <label htmlFor={`short`}><b>Short Term Career Plan</b></label>
                         <Select
-                            onValueChange={(value) => {
+                            onValueChange={(value) => 
+                                {
                                     setCareerOfMyChoice((prev) => {
                                         return { long: prev?.long === undefined ? null : prev?.long, short: value };
                                     });

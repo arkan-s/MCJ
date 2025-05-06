@@ -27,7 +27,7 @@ export const positionCol: ColumnDef<DataPosition>[] = [
     },
     {
         accessorKey: "dept",
-        header: "Nama Department",
+        header: "Kode Department",
     },
     {
         id: "actions",

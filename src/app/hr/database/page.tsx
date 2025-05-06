@@ -43,9 +43,9 @@ import { careerPathCol } from "@/components/shared/columns/careerpath";
 
 
 export default function Database() {
-    
     const queryClient = useQueryClient();
 
+    // ====== Must-Fetched Data ======
     const { data: branchData, isLoading: branchLoading, isError: branchError } = useQuery({
         queryKey: ["cabang"],
         queryFn: branch,
@@ -119,8 +119,6 @@ export default function Database() {
         addCareerPath(newData);
     };
 
-    
-
     type involvedDept = {
         idID: string;
         idForm: string;
@@ -150,12 +148,23 @@ export default function Database() {
     //     retry: 3, 
     //     retryDelay: attemptIndex => Math.min(1000 * 1 ** attemptIndex, 30000),
     //     staleTime: Infinity, 
-    // })
+    // }) 
 
+    // ====== Initialize and Re Component's States ======
     const isAnyLoading = branchLoading || departmentLoading || positionLoading || levelLoading || cpLoading;
     const isAnyError = branchError || departmentError || positionError || levelError || cpError;
 
+    // ====== Initialize and Re Other States ======
 
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
         <div className="flex grow max-h-screen overflow-y-auto p-3 w-full">
             {isAnyLoading ? (

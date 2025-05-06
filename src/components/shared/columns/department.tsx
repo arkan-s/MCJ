@@ -24,31 +24,31 @@ export const departmentCol: ColumnDef<DataDepartment>[] = [
         header: "Nama Department",
         
     },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-        const dept = row.original
+    // {
+    //     id: "actions",
+    //     cell: ({ row }) => {
+    //     const dept = row.original
     
-        return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-            </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-                Edit Data
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-                Hapus Data
-            </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-        )
-    }, 
-    },
+    //     return (
+    //     <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //         <Button variant="ghost" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal className="h-4 w-4" />
+    //         </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent align="end">
+    //         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //         <DropdownMenuItem>
+    //             Edit Data
+    //         </DropdownMenuItem>
+    //         <DropdownMenuSeparator />
+    //         <DropdownMenuItem>
+    //             Hapus Data
+    //         </DropdownMenuItem>
+    //         </DropdownMenuContent>
+    //     </DropdownMenu>
+    //     )
+    // }, 
+    // },
 ]

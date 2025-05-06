@@ -15,17 +15,22 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { useQuery } from "@tanstack/react-query"
-import { branch, department, getDashboardKaryawan, level, position } from "@/utils/fetchData"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { branch, department, getDashboardKaryawan, level, position, putData } from "@/utils/fetchData"
 import { getQueryClient } from '@/lib/getQueryClient';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { CareerHistoryCard, ComiteeCard, OrgIntCard, ProjectCard } from './Cards';
+import { CareerHistoryCard, ComiteeCard, OrgIntCard, ProjectCard, TrainingCard } from './Cards';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id'; 
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Loader2 } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { DataKaryawan } from '@/types/datatype-employee';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Dashboard() {
     
@@ -69,8 +74,11 @@ export default function Dashboard() {
         staleTime: Infinity, 
     });
 
+    const nik = session?.user?.nik;
+    const queryKey = ['employeedashboard', nik];    
+
     const { data: dashboardData, isLoading: dashboardLoading, isError: dashboardError } = useQuery({
-        queryKey: ['employeedashboard', session?.user?.nik],
+        queryKey: ['employeedashboard', queryKey],
         queryFn: () => {
             if (!session?.user?.nik) {
                 throw new Error("NIK is not available");
@@ -83,9 +91,28 @@ export default function Dashboard() {
         staleTime: Infinity
     })
 
-    const editData = () => {
-        
+    const { mutate: updateDashboardData, isPending: isUpdateDashboardDataPending } = useMutation({
+        mutationFn: ({ id, newData, url }: { id: any; newData: any; url: any }) => putData(id, newData, url),
+        onMutate: () => {
+            closeEditData(); // Dialog ditutup sebelum loading mulai
+        },
+        onSuccess: () => {
+            // closeEditData();
+            setEditResultNotice({status: "success", message: "Data telah berhasil diubah!", isOpen: true});
+            getQueryClient().invalidateQueries({ queryKey: ['employeedashboard', queryKey] });
+            getQueryClient().refetchQueries({ queryKey: ['employeedashboard', queryKey] });
+        },
+        onError: (error) => {
+            // closeEditData();
+            setEditResultNotice({status: "error", message: `Terjadi error : ${error.message}. Mohon refresh dan ulangi.`, isOpen: true});
+        },
+    });
+
+    const openResultQuestionnaire = () => {
+
     }
+
+    
 
     // ====== Initialize and Re Component's States ======
     const profileField = useMemo(() => {
@@ -112,15 +139,64 @@ export default function Dashboard() {
         setIsRedirecting(true);
         router.push('/employee/form');
     }
+
+    const [ isEditOpen, setIsEditOpen ] = useState<boolean>(false);
+    const [ editData, setEditData ] = useState<Partial<DataKaryawan>>();
+    useEffect(()=>{
+        if (dashboardLoading) {
+            return;
+        }
+        if (dashboardData) {
+            const data = {
+                nomorIndukKaryawan: dashboardData.nomorIndukKaryawan,
+                namaKaryawan: dashboardData.namaKaryawan,
+                tanggalLahir: new Date(dashboardData.tanggalLahir),
+                tanggalMasukKerja: new Date(dashboardData.tanggalMasukKerja),
+                gender: dashboardData.gender,
+                personnelArea: dashboardData.personnelArea,
+                position: dashboardData.position,
+                personnelSubarea: dashboardData.personnelSubarea,
+                levelPosition: dashboardData.levelPosition,
+                age: dashboardData.age,
+                lengthOfService: dashboardData.lengthOfService,
+                pend: dashboardData.pend,
+                namaSekolah: dashboardData.namaSekolah,
+                namaJurusan: dashboardData.namaJurusan,
+    
+                BestEmployee: dashboardData.BestEmployee === null ? 0 : dashboardData.BestEmployee,
+    
+                formFilled: dashboardData.formFilled,
+                questionnaire: dashboardData.questionnaire,
+                createdAt: dashboardData.createdAt,
+                lastUpdatedAt: dashboardData.lastUpdateAt,
+            }
+            setEditData(data);
+        }
+        
+    }, [dashboardData, isEditOpen]);
+    const openEditData = () => {
+        setIsEditOpen(true);
+    }
+    const closeEditData = () => {
+        setIsEditOpen(false);
+    }
+
+    const [ editResultNotice, setEditResultNotice ] = useState<{status: "success" | "error", message: string, isOpen: boolean}>({status: "success", message: "", isOpen: false});
+
+    const [ failedDownloadOpen, setFailedDownloadOpen ] = useState<boolean>(false);
+    const downloadData = () => {
+        if (session?.user.formFilled === 0 || session?.user.questionnaire === 0) {
+            setFailedDownloadOpen(true);
+            return;
+        }
+
+    }
+
+
     
     // ====== Initialize and Re Other States ======
 
     // ====== Initialize and Re Component's Components ======
-    const EmptyState = ({ message }: { message: string }) => (
-        <div className="flex grow justify-center items-center h-full w-full py-10">
-            <h1 className="text-gray-500">{message}</h1>
-        </div>
-    );
 
     const DashboardSkeleton = () => {
         return (
@@ -181,6 +257,15 @@ export default function Dashboard() {
         )
     }
 
+    if (isRedirecting) {
+        return (
+            <div className="flex flex-col items-center justify-center w-full py-20">
+                <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
+                <p className="mt-4 text-lg font-semibold">Loading data...</p>
+            </div>
+        )
+    }
+
     // ====== Error Handling ======
     if (dashboardError) {
         return (
@@ -216,7 +301,7 @@ export default function Dashboard() {
                 <div className="flex grow flex-col md:flex-row md:h-2/5 ">
                     <div className="flex flex-col md:mt-8 md:w-[30%] items-center">
                         <button className="block w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                            <img src="/path/to/profile.jpg" alt="Profile Photo" className="w-full h-full object-cover" />
+                            <img alt="Profile Photo" className="w-full h-full object-contain" />
                         </button>
                         <h1 className="hidden md:block overflow-x-visible md:text-base break-words whitespace-normal text-center md:my-1"> {profileField?.find((e: any)=>e.title === "Nama")?.value} </h1>
                         <h3 className="block overflow-x-visible md:text-sm break-words whitespace-normal text-center mb-2"> <span className="italic">{profileField?.find((e: any)=>e.title === "Posisi")?.value}</span> - <span className="not-italic">{profileField?.find((e: any)=>e.title === "Level")?.value}</span></h3>
@@ -237,12 +322,14 @@ export default function Dashboard() {
                         <button className="flex h-[50%] md:h-[10%] w-[45%] md:w-[80%] ring-2 ring-blue-500 ring-offset-2 ring-offset-white rounded-sm mb-4 
                                 bg-white text-blue-500 hover:text-white hover:bg-blue-500 active:text-white active:bg-blue-500 
                                 cursor-pointer items-center justify-center text-xs md:text-base"
+                                onClick={()=>openEditData()}
                         >
                             Edit data diri
                         </button>
                         <button className="flex h-[50%] md:h-[10%] w-[45%] md:w-[80%] ring-2 ring-blue-500 ring-offset-2 ring-offset-white rounded-sm mb-4 
                                 bg-white text-blue-500 hover:text-white hover:bg-blue-500 active:text-white active:bg-blue-500 
                                 cursor-pointer items-center justify-center text-xs md:text-base"
+                                onClick={()=>downloadData()}
                         >
                             Download data
                         </button>
@@ -272,7 +359,7 @@ export default function Dashboard() {
                                 {/* Tombol overlay */}
                                 <div className="absolute grow inset-0 flex items-center justify-center z-10">
                                     <div className="flex flex-col justify-center items-center bg-yellow-200 w-64 h-44 border border-red-500 gap-2 rounded rounded-xl hover:shadow-xl hover:bg-yellow-100 shadow-lg p-2">
-                                        <h3 className="block text-center text-red-600 font-bold">Anda belum mengisi Form Data diri. Mohon isi terlebih dahulu</h3>
+                                        <h3 className="block text-center text-red-600 font-bold">Anda belum mengisi Form Data diri. Mohon isi terlebih dahulu.</h3>
                                         <Button onClick={()=>formFilled_0()} className="px-4 py-2 bg-red-500 text-amber-400 hover:text-yellow-100 rounded hover:bg-red-600 shadow-lg">
                                             Isi Form
                                         </Button>
@@ -292,7 +379,7 @@ export default function Dashboard() {
                                     <TabsTrigger className="truncate text-[8px] md:text-sm" value="Riwayat GKM">GKM</TabsTrigger>
                                     <TabsTrigger className="truncate text-[8px] md:text-sm" value="Training">Training</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="Riwayat Karir" className="flex flex-wrap items-center justify-center md:justify-start p-1 md:-mt-px">
+                                <TabsContent value="Riwayat Karir" className="flex flex-wrap overflow-x-auto items-center justify-center md:justify-start p-1 md:-mt-px">
                                 {
                                     dashboardData?.DataRiwayatKarir?.length && dashboardData?.formFilled === 1
                                     ? dashboardData.DataRiwayatKarir.map((e: any, i: number) => (
@@ -309,7 +396,7 @@ export default function Dashboard() {
                                 }
                                 </TabsContent>
 
-                                <TabsContent value="Project" className="flex flex-wrap items-center justify-center md:justify-start p-1 md:-mt-px">
+                                <TabsContent value="Project" className="flex flex-wrap overflow-x-auto items-center justify-center md:justify-start p-1 md:-mt-px">
                                 {
                                     dashboardData?.DataRiwayatProject?.length 
                                     ? dashboardData.DataRiwayatProject.map((e: any, i: number) => (
@@ -324,7 +411,7 @@ export default function Dashboard() {
                                 }
                                 </TabsContent>
 
-                                <TabsContent value="Organisasi Internal" className="flex flex-wrap items-center justify-center md:justify-start p-1 md:-mt-px">
+                                <TabsContent value="Organisasi Internal" className="flex flex-wrap overflow-x-auto items-center justify-center md:justify-start p-1 md:-mt-px">
                                 {
                                     dashboardData?.DataRiwayatOrganisasiInternal?.length 
                                     ? dashboardData.DataRiwayatOrganisasiInternal.map((e: any, i: number) => (
@@ -338,7 +425,7 @@ export default function Dashboard() {
                                 }
                                 </TabsContent>
 
-                                <TabsContent value="Kepanitiaan" className="flex flex-wrap items-center justify-center md:justify-start p-1 md:-mt-px">
+                                <TabsContent value="Kepanitiaan" className="flex flex-wrap overflow-x-auto items-center justify-center md:justify-start p-1 md:-mt-px">
                                 {
                                     dashboardData?.DataRiwayatKepanitiaan?.length 
                                     ? dashboardData.DataRiwayatKepanitiaan.map((e: any, i: number) => (
@@ -352,7 +439,7 @@ export default function Dashboard() {
                                 }
                                 </TabsContent>
 
-                                <TabsContent value="Riwayat GKM" className="flex flex-col justify-center items-center p-1 md:-mt-px">
+                                <TabsContent value="Riwayat GKM" className="flex flex-wrap overflow-x-auto items-center justify-center p-1 md:-mt-px">
                                 {
                                     dashboardData?.DataRiwayatGKM
                                     ? (
@@ -390,22 +477,346 @@ export default function Dashboard() {
                                         </div>
                                 }
                                 </TabsContent>
+
+                                <TabsContent value="Training" className="flex flex-wrap overflow-x-auto items-center justify-center md:justify-start p-1 md:-mt-px gap-y-2">
+                                {
+                                    dashboardData?.DataTrainingWanted?.length 
+                                    ? dashboardData.DataTrainingWanted.map((e: any, i: number) => (
+                                        <TrainingCard key={i} data={e} /> 
+                                        ))
+                                    :   <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                                            {[...Array(3)].map((_, i) => (
+                                            <Skeleton key={i} className="h-24 w-48" />
+                                            ))}
+                                        </div>
+                                }
+                                </TabsContent>
                             </Tabs>
                         )
                     }
                 </div>
             </div>
             {
-                isRedirecting && (
-                    <AlertDialog >
-                        <AlertDialogContent className="flex flex-col items-center justify-center w-full py-20">
-                            <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
-                            <p className="mt-4 text-lg font-semibold">Loading data...</p>
+                editResultNotice.isOpen && (
+                    <AlertDialog open={editResultNotice.isOpen} onOpenChange={(open) => setEditResultNotice(prev => ({ ...prev, isOpen: open }))}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>{editResultNotice.status}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    {editResultNotice.message}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel 
+                                    onClick={() => {
+                                            setEditResultNotice(prev => ({ ...prev, isOpen: false }));
+                                            window.location.reload();
+                                        }
+                                        }>
+                                    Okay!
+                                </AlertDialogCancel>
+                            </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
                 )
             }
-            
+            {
+                isUpdateDashboardDataPending && (
+                    <div className="fixed top-0 left-0 z-30 w-screen h-screen flex flex-col items-center justify-center bg-grey-50">
+                        <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
+                        <p className="mt-4 text-lg font-semibold">Editing data...</p>
+                    </div>
+                )
+            }
+            {
+                failedDownloadOpen && (
+                    <AlertDialog open={failedDownloadOpen} onOpenChange={setFailedDownloadOpen}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Tidak bisa download!</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Isi form dan kuesioner terlebih dahulu sebelum mengunduh data.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setFailedDownloadOpen(false)}>
+                                    Cancel
+                                </AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )
+            }
+            {
+                isEditOpen && (
+                    <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                        <DialogContent className="flex flex-col grow gap-y-4">
+                            <DialogHeader>
+                                <DialogTitle>Edit profile</DialogTitle>
+                                <DialogDescription>
+                                    Lakukan perubahan pada profil Anda di sini. Klik simpan setelah selesai.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid grid-cols-2 gap-x-2 w-full">
+                                <div className="flex flex-col">
+                                    <label htmlFor="">NIK</label>
+                                    <Input 
+                                        value={editData?.nomorIndukKaryawan} 
+                                        readOnly
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            nomorIndukKaryawan: val.target.value,
+                                        })}
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Nama Karyawan</label>
+                                    <Input 
+                                        value={editData?.namaKaryawan} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            namaKaryawan: val.target.value,
+                                        })}
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Tanggal Lahir</label>
+                                    <Input
+                                        type='Date'
+                                        value={editData?.tanggalLahir?.toISOString().split("T")[0]} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            tanggalLahir: new Date(val.target.value),
+                                        })} 
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Tanggal Masuk Perusahaan</label>
+                                    <Input 
+                                        type='Date'
+                                        value={editData?.tanggalMasukKerja?.toISOString().split("T")[0]} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            tanggalMasukKerja: new Date(val.target.value),
+                                        })} 
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Gender</label>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            setEditData({
+                                                ...editData,
+                                                gender: value,
+                                            })
+                                        }}
+                                        defaultValue={editData && editData.gender || ""}
+                                    >
+                                        <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                            <SelectValue placeholder={editData && editData.personnelArea || "Pilih Cabang"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem key={"1-Male"} value={"Male"}>Male/Laki-laki</SelectItem>
+                                            <SelectItem key={"2-Female"} value={"Female"}>Female/Perempuan</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Karyawan Terbaik</label>
+                                    <Input 
+                                        type="number"
+                                        value={String(editData?.BestEmployee) ?? String(0)} 
+                                        onChange={(e) =>
+                                        setEditData({
+                                            ...editData,
+                                            BestEmployee: Number(e.target.value), // konversi string ke number
+                                        })
+                                        } 
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Cabang</label>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            setEditData({
+                                                ...editData,
+                                                personnelArea: value
+                                            })
+                                        }}
+                                        defaultValue={editData && editData.personnelArea || ""}
+                                    >
+                                        <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                            <SelectValue placeholder={editData && editData.personnelArea || "Pilih Cabang"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {branchLoading ? 
+                                                (
+                                                    <div className="flex justify-center items-center">
+                                                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                        <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                                    </div>
+                                                ) : branchError ? (
+                                                    <div className="flex justify-center items-center">
+                                                        <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                                    </div>
+                                                ) : (
+                                                    branchData.map((br: any, index: any) => (
+                                                        <SelectItem key={index} value={br.idBranch}>{br.namaBranch}</SelectItem>
+                                                    ))
+                                                )
+                                            }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Department</label>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            setEditData({
+                                                ...editData,
+                                                personnelSubarea: value
+                                            })
+                                        }}
+                                        defaultValue={editData && editData.personnelSubarea || ""}
+                                    >
+                                        <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                            <SelectValue placeholder={editData && editData.personnelSubarea || "Pilih Department"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                        {departmentLoading ? 
+                                            (
+                                                <div className="flex justify-center items-center">
+                                                    <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                    <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                                </div>
+                                            ) : departmentError ? (
+                                                <div className="flex justify-center items-center">
+                                                    <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                                </div>
+                                            ) : (
+                                                departmentData.map((dept: any, index: any) => (
+                                                    <SelectItem key={index} value={dept.idDepartment}>{dept.namaDepartment}</SelectItem>
+                                                ))
+                                            )
+                                        }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Posisi</label>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            setEditData({
+                                                ...editData,
+                                                position: parseInt(value)
+                                            })
+                                        }}
+                                        defaultValue={editData && String(editData.position) || ""}
+                                    >
+                                        <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                            <SelectValue placeholder={editData && String(editData.position) || "Pilih Posisi"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                        {
+                                            positionLoading ? 
+                                            (
+                                                <div className="flex justify-center items-center">
+                                                    <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                    <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                                </div>
+                                            ) : positionError ? (
+                                                <div className="flex justify-center items-center">
+                                                    <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                                </div>
+                                            ) : (
+                                                positionData.filter((e:any)=>editData?.personnelSubarea === e.dept).map((pos: any, index:any) => (
+                                                    <SelectItem key={index} value={String(pos.idPosition)}>{pos.namaPosition}</SelectItem>
+                                                ))
+                                            )
+                                        }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Level</label>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            setEditData({
+                                                ...editData,
+                                                levelPosition: value
+                                            })
+                                        }}
+                                        defaultValue={editData && editData.levelPosition || ""}
+                                    >
+                                        <SelectTrigger className="border-2 border-zinc-300 w-full">
+                                            <SelectValue placeholder={editData && editData.levelPosition || "Pilih Posisi"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                        {
+                                            levelLoading ? 
+                                            (
+                                                <div className="flex justify-center items-center">
+                                                    <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                                    <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                                </div>
+                                            ) : levelError ? (
+                                                <div className="flex justify-center items-center">
+                                                    <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                                </div>
+                                            ) : (
+                                                levelData.map((dept: any, index: any) => (
+                                                    <SelectItem key={index} value={dept.idLevel}>{dept.namaLevel}</SelectItem>
+                                                ))
+                                            )
+                                        }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Pendidikan</label>
+                                    <Input 
+                                        value={editData?.pend} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            pend: val.target.value,
+                                        })} 
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Nama Sekolah / Universitas</label>
+                                    <Input 
+                                        value={editData?.namaSekolah} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            namaSekolah: val.target.value,
+                                        })} 
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="">Nama Jurusan</label>
+                                    <Input 
+                                        value={editData?.namaJurusan} 
+                                        onChange={val=>setEditData({
+                                            ...editData,
+                                            namaJurusan: val.target.value,
+                                        })} 
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline" onClick={()=>closeEditData()}>Tutup</Button>
+                            </DialogClose>
+                            <Button 
+                                onClick={()=>updateDashboardData({id: session?.user.nik, newData: editData, url: `/api/datakaryawan/${session?.user.nik}`})}
+                            >
+                                Simpan
+                            </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                )
+            }            
         </div>
         
     )

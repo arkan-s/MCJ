@@ -32,7 +32,9 @@ export function PaginationFormHandler({total_pages, page_number, changing_page, 
             !item.personnelArea || 
             !item.personnelSubarea || 
             !item.levelPosition || 
-            item.tanggalMulai === null 
+            !item.tanggalMulai ||
+            item.tanggalMulai === null ||
+            (item.status === 0 && (!item.tanggalBerakhir || item.tanggalBerakhir === null))
         );
     
         return isInvalid ? false : true;

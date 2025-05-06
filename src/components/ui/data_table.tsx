@@ -53,8 +53,8 @@ export function DataTable<TData, TValue>({columns,data, addDataURL}: DataTablePr
     })
 
     return (
-        <div>
-            <div className="flex items-center py-4">
+        <div className="flex flex-col ">
+            <div className="md:h-[15%] flex items-center py-4">
                 <Input
                     placeholder="Cari posisi..."
                     value={globalFilter}
@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({columns,data, addDataURL}: DataTablePr
                     onClick={() => window.location.href = window.location.href + addDataURL}>Add Data</button>
                 </div>
             </div>
-            <div className="rounded-md border">
+            <div className="md:h-[65%] rounded-md border overflow-scroll">
                 <Table>
                     <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -110,7 +110,7 @@ export function DataTable<TData, TValue>({columns,data, addDataURL}: DataTablePr
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="md:h-[15%] flex items-center justify-end space-x-2 py-4">
                 <Button
                 variant="outline"
                 size="sm"

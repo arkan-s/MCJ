@@ -27,6 +27,7 @@ export type JobVacancy = {
     position: number;
     levelPosition: string;
     available: Date; 
+    published: number;
     JobSummary: string | null;
     JobDescription: string | null;
 

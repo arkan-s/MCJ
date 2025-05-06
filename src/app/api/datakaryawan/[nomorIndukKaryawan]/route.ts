@@ -128,17 +128,22 @@ export async function PUT(req : NextRequest, { params }: { params: { nomorIndukK
                 tanggalLahir: data.tanggalLahir,
                 tanggalMasukKerja: data.tanggalMasukKerja,
                 gender: data.gender,
+                age: (new Date().getTime() - new Date(data.tanggalLahir).getTime()) / 1000 * 60 * 60 * 24 * 365.25,
                 personnelArea: prev_data.personnelArea,
-                position: prev_data.position,
                 personnelSubarea: prev_data.personnelSubarea,
+                position: prev_data.position,
                 levelPosition: prev_data.levelPosition,
+                
                 pend: data.pend,
                 namaSekolah: data.namaSekolah,
                 namaJurusan: data.namaJurusan,
-                age: (new Date().getTime() - new Date(data.tanggalLahir).getTime()) / 1000 * 60 * 60 * 24 * 365.25,
-                lengthOfService: (new Date().getTime() - new Date(data.tanggalMasukKerja).getTime()) / 1000 * 60 * 60 * 24 * 365.25,
+                
                 formFilled: prev_data.formFilled,
                 questionnaire: prev_data.questionnaire,
+
+                BestEmployee: data.BestEmployee,
+                
+                lengthOfService: (new Date().getTime() - new Date(data.tanggalMasukKerja).getTime()) / 1000 * 60 * 60 * 24 * 365.25,
                 createdAt: prev_data.createdAt,
                 lastUpdatedAt: new Date(),
             },
@@ -158,5 +163,3 @@ export async function PUT(req : NextRequest, { params }: { params: { nomorIndukK
         }
     }
 }
-
-// TIDAK ADA MENGHAPUS DATA KARYAWAN TERPISAH DENGAN PENGHAPUSAN AKUN

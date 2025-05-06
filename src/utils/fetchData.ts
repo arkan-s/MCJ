@@ -148,7 +148,7 @@ export async function getCareerPath() {
     if (data.status !== 200) {
         throw new Error(careerPath.message || "Gagal mengambil data career path");
     }
-    return careerPath;    
+    return careerPath;
 }
 
 export async function postCareerPath(insertedData: any){

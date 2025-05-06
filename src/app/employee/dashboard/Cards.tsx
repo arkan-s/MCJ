@@ -7,7 +7,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DataRiwayatKarir } from "@/types/datatype-employee";
+import { DataRiwayatKarir, DataRiwayatKepanitiaan, DataRiwayatOrganisasiInternal, DataRiwayatProject, DataTrainingWanted } from "@/types/datatype-employee";
 import { putData } from "@/utils/employeeAPI";
 import { branch, department, level, position } from "@/utils/fetchData";
 import { useQuery } from "@tanstack/react-query";
@@ -20,7 +20,6 @@ export function CareerHistoryCard({data}:
     }
 ){    
     const { data: session } = useSession();
-    // LoadingSpinner.tsx
     const LoadingSpinner = () => (
         <div className="flex justify-center items-center py-4">
         <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
@@ -28,7 +27,6 @@ export function CareerHistoryCard({data}:
         </div>
     );
     
-  // ErrorMessage.tsx
     const ErrorMessage = ({ message }: { message: string }) => (
         <div className="flex justify-center items-center py-4">
         <p className="text-sm text-red-500">{message}</p>
@@ -69,17 +67,7 @@ export function CareerHistoryCard({data}:
     });
     const [ editOn, setEditOn] = useState<boolean>(false);
 
-    const [dataLokal, setDataLokal] = useState<{
-                                                idCareerHistory: string,
-                                                nomorIndukKaryawan: string,
-                                                personnelArea: string,
-                                                personnelSubarea: string,
-                                                position: number,
-                                                levelPosition: string,
-                                                tanggalMulai: Date | null,
-                                                tanggalBerakhir: Date | null,
-                                                status: number,
-                                            }>();
+    const [dataLokal, setDataLokal] = useState<DataRiwayatKarir>();
     useEffect(() => {
         setDataLokal({
             ...data,
@@ -456,35 +444,35 @@ export function CareerHistoryCard({data}:
 }
 
 
-export function ProjectCard({data}:{data:{
-    idRiwayatProject: string,
-    judulProject: string,
-    namaPosisi: string
-    lamaKolaborasi: number
-    shortDesc: string
-    nomorIndukKaryawan: string
-}}){
-    const [ editOn, setEditOn] = useState<boolean>(false);
-    const [dataLokal, setDataLokal] = useState<{
-                                                idRiwayatProject: string,
-                                                judulProject: string,
-                                                namaPosisi: string
-                                                lamaKolaborasi: number
-                                                shortDesc: string
-                                                nomorIndukKaryawan: string
-                                                }>();
+export function ProjectCard({data}:{data:DataRiwayatProject}){
+    // ====== Must-Fetched Data ======
+
+    // ====== Initialize and Re Component's States ======
+    const [ editOn, setEditOn ] = useState<boolean>(false);
+    const [dataLokal, setDataLokal] = useState<DataRiwayatProject>();
     useEffect(() => {
         setDataLokal(data);
     }, [data]);
 
+    // ====== Initialize and Re Other States ======
+
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
     console.log(
         dataLokal
     );
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
 
     return (
-        <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
-            <CardContent className="">
-            <div className="flex flex-col">
+        <Card className="flex w-full p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
+            <CardContent className="flex flex-row grow flex-wrap justify-between">
+            <div className="flex flex-col w-[100%]">
                 <label htmlFor={`name${dataLokal?.idRiwayatProject}`} className="text-sm text-gray-600 mb-1">Judul Project</label>
                 <input
                     type="text"
@@ -509,7 +497,7 @@ export function ProjectCard({data}:{data:{
 
                 />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col w-[45%]">
                 <label htmlFor={`posisi${dataLokal?.idRiwayatProject}`} className="text-sm text-gray-600 mb-1">Posisi atau peran</label>
                 <input
                     type="text"
@@ -534,7 +522,7 @@ export function ProjectCard({data}:{data:{
 
                 />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col w-[45%]">
                 <label className="text-sm text-gray-600 mb-1" htmlFor={`year${dataLokal?.idRiwayatProject}`}>
                     Tahun
                 </label>
@@ -561,7 +549,7 @@ export function ProjectCard({data}:{data:{
 
                 />
             </div>
-            <div className="flex flex-col gap-1 w-full">
+            <div className="flex flex-col gap-1 w-[100%]">
                 <label className="text-sm text-gray-600 mb-1" htmlFor={`shortDesc${dataLokal?.idRiwayatProject}`}>
                     Short Desc
                 </label>
@@ -611,31 +599,30 @@ export function ProjectCard({data}:{data:{
     
 }
 
-export function OrgIntCard({data}:{data:{
-    idRiwayatOrganisasiInternal: string; 
-    namaOrganisasi: string;       
-    namaPosisi: string;
-    tahunMulai: number;
-    tahunSelesai: number;
-    nomorIndukKaryawan: string;
-}}){
+export function OrgIntCard({data}:{data:DataRiwayatOrganisasiInternal}){
+    // ====== Must-Fetched Data ======
+
+    // ====== Initialize and Re Component's States ======
     const [ editOn, setEditOn] = useState<boolean>(false);
-    const [dataLokal, setDataLokal] = useState<{
-        idRiwayatOrganisasiInternal: string,
-        namaOrganisasi: string,
-        namaPosisi: string,
-        tahunMulai: number,
-        tahunSelesai: number,
-        nomorIndukKaryawan: string,
-    }>();
+    const [dataLokal, setDataLokal] = useState<DataRiwayatOrganisasiInternal>();
     useEffect(() => {
         setDataLokal(data);
     }, [data]);
 
+    // ====== Initialize and Re Other States ======
+
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
     console.log(
         dataLokal
     );
+    
+    // ====== Loading Handling ======
 
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
         <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
             <CardContent className="">
@@ -744,29 +731,30 @@ export function OrgIntCard({data}:{data:{
     )
 }
 
-export function ComiteeCard({data}:{data:{
-    idRiwayatKepanitiaan: string;
-    nomorIndukKaryawan: string;
-    namaAcara: string; 
-    namaPosisi: string;
-    tahunPelaksanaan: number;
-}}){
+export function ComiteeCard({data}:{data:DataRiwayatKepanitiaan}){
+    // ====== Must-Fetched Data ======
+
+    // ====== Initialize and Re Component's States ======
+
+    // ====== Initialize and Re Other States ======
     const [ editOn, setEditOn] = useState<boolean>(false);
-    const [dataLokal, setDataLokal] = useState<{
-        idRiwayatKepanitiaan: string;
-        nomorIndukKaryawan: string;
-        namaAcara: string; 
-        namaPosisi: string;
-        tahunPelaksanaan: number;
-    }>();
+    const [dataLokal, setDataLokal] = useState<DataRiwayatKepanitiaan>();
     useEffect(() => {
         setDataLokal(data);
     }, [data]);
 
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
     console.log(
         dataLokal
     );
+    
+    // ====== Loading Handling ======
 
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
         <Card className="flex flex-col h-80 w-80 max-w-80 p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
             <CardContent>
@@ -843,5 +831,59 @@ export function ComiteeCard({data}:{data:{
             </div>
             </CardContent>
         </Card>
+    )
+}
+
+export function TrainingCard({data}:{data:DataTrainingWanted}){
+    // ====== Must-Fetched Data ======
+
+    // ====== Initialize and Re Component's States ======
+    const [ editOn, setEditOn] = useState<boolean>(false);
+    const [dataLokal, setDataLokal] = useState<DataTrainingWanted>();
+    useEffect(() => {
+        setDataLokal(data);
+    }, [data]);
+
+    // ====== Initialize and Re Other States ======
+
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
+    console.log(
+        dataLokal
+    );
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
+    return (
+        <Card className="flex flex-col w-full p-1 overflow-y-auto shadow-md border border-gray-200 rounded-2xl">
+            <CardContent>
+                <div className="flex flex-col">
+                <label htmlFor={`namaAcara${dataLokal?.idTraining}`} className="text-sm text-gray-600 mb-1">Topik Training</label>
+                    <input
+                        type="text"
+                        id={`namaAcara${dataLokal?.idTraining}`}
+                        name={`namaAcara${dataLokal?.idTraining}`}
+                        placeholder={dataLokal ? dataLokal.topikTraining === null ? "Topik training" : dataLokal.topikTraining : "Topik training"}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onBlur={(e) => {
+                            setDataLokal((prev) => ({
+                                ...(prev || {
+                                    idTraining: "",
+                                    nomorIndukKaryawan: "",
+                                    topikTraining: "",
+                                }),
+                                topikTraining: e.target.value
+                            }))
+                        }}
+                        disabled={!editOn}
+                    />
+                </div>
+            </CardContent>
+        </Card>
+            
     )
 }

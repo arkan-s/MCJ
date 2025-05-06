@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 
 export default function HumanRLayout({ children }: { children: React.ReactNode }) {
     return (
-        <main className="flex md:flex-row flex-col grow w-full h-screen">
+        // <main className="flex md:flex-row flex-col grow w-full h-screen">
+        <main className="flex md:flex-row flex-col grow justify-center w-screen md:h-screen">
             <NavBar role="hr" disable={false}/>
             {children}
         </main>

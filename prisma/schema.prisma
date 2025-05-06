@@ -336,6 +336,7 @@ model JobVacancy {
   JobSummary                   String?
   JobDescription               String?
 
+  published                    Int                             @default(1)
 
   
   DataBranch                   DataBranch                      @relation(fields: [personnelArea], references: [idBranch], map: "FK_JobVacancy_DataBranch", onDelete: NoAction)

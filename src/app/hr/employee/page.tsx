@@ -1,7 +1,8 @@
 import { Show_Data } from "@/components/ui/showdata/showData";
 import { cookies } from "next/headers";
-import { userCol } from "./columns"
+import { employeeCol } from "@/components/shared/columns/employee";
 import { DataTable } from "@/components/ui/data_table"
+import { EmployeeTable } from "@/components/ui/table/employeeTable";
 
 async function getCookieString() {
     const cookieStore = await cookies();
@@ -14,12 +15,11 @@ console.log(cookieString);
 
 async function fetchData() {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/EmployeeUsers`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/datakaryawan`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Cookie': cookieString,
-                // Pastikan cookieString sudah didefinisikan
+                'Cookie': cookieString, // Pastikan cookieString sudah didefinisikan
             },
         });
 
@@ -50,34 +50,26 @@ async function fetchData() {
 }
 
 export default async function accountcontrolEmployee(){
+    // ====== Must-Fetched Data ======
     const json_data = await fetchData();
 
+    // ====== Initialize and Re Component's States ======
     const data = json_data.data || [];
 
-    // const data = Array.from({ length: 100 }, (_, i) => ({
-    //     nomorIndukKaryawan: (1000 + i).toString(),
-    //     namaKaryawan: `Employee ${i + 1}`,
-    //     gender: i % 2 === 0 ? "Male" : "Female",
-    //     personnelArea: ["Jakarta", "Surabaya", "Bandung", "Medan", "Semarang"][i % 5],
-    //     position: ["Software Engineer", "HR", "Marketing", "Finance", "Operations"][i % 5],
-    //     personnelSubarea: ["IT", "Admin", "Sales", "Accounting", "Production"][i % 5],
-    //     levelPosition: ["staff", "spv", "opt", "manager", "intern"][i % 5],
-    //     role: "employee",
-    //     password: `hashedpassword${1000 + i}`
-    // }));
-    
-    // console.log(data);
-    
+    // ====== Initialize and Re Other States ======
 
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
-        <div className="container mx-auto overflow-hidden pt-1">
-            <DataTable columns={userCol} data={data} addDataURL={"/addaccount/employeexcel"} />
+        <div className="container overflow-x-hidden pt-1">
+            <EmployeeTable columns={employeeCol} data={data} addDataURL={"/addaccount/employeexcel"} />
         </div>
     )
-
-    // return (
-    //     <div className="flex grow flex-col">
-    //         <Show_Data json_data={json_data}></Show_Data>
-    //     </div>
-    // )
 }

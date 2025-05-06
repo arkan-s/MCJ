@@ -30,7 +30,7 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
 
 
     return (
-        <main className="flex md:flex-row justify-center flex-col w-full min-h-screen grow overflow-y-auto">
+        <main className="flex md:flex-row flex-col grow justify-center w-full min-h-screen overflow-y-auto">
             <NavBar role="employee" disable={false}/>
             {children}
         </main>

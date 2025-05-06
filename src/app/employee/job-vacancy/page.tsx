@@ -7,39 +7,29 @@ import { useSession } from "next-auth/react"
 import { JVColumn } from "@/components/shared/columns/jobvacancy"; 
 import { useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
-    SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { ListFilter, MapPin, NotebookText, Rocket } from "lucide-react";
+import LoadingFullPage from "@/components/shared/loading/loading-fullpage";
 
 
 
 export default function JobVacancy(){
     const { data: session } = useSession();
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [sorting, setSorting] = useState<SortingState>([])
-    const [globalFilter, setGlobalFilter] = useState("")
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10,
-    });
-    
+    // ====== Must-Fetched Data ======
     const { data: branchData, isLoading: branchLoading, isError: branchError } = useQuery({
         queryKey: ["cabang"],
         queryFn: branch,
@@ -75,6 +65,15 @@ export default function JobVacancy(){
         retryDelay: (attemptIndex: number) => Math.min(1000 * 1 ** attemptIndex, 30000),
     })
 
+    // ====== Initialize and Re Component's States ======
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [globalFilter, setGlobalFilter] = useState("")
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10,
+    });
+
     const JobVacancyTable = useReactTable({
         data: jobVacancyData || [],
         columns: JVColumn,
@@ -95,29 +94,39 @@ export default function JobVacancy(){
         autoResetPageIndex: false, 
     });
 
-    console.log(JobVacancyTable.getRowModel().rows);
-
     const resetFilters = () => {
         setColumnFilters([]);    
         setGlobalFilter("");     
         setSorting([]);          
     };
+    // ====== Initialize and Re Other States ======
 
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
+    console.log(JobVacancyTable.getRowModel().rows);
+    
+    // ====== Loading Handling ======
     if (branchLoading || departmentLoading || karyawanLoading || jobVacancyLoading) {
         return (
-            <div className="flex flex-col grow w-full justify-center items-center">
-                <ClipLoader size={60} color="#3498db" />;
-            </div>
+            <LoadingFullPage/>
         )
     }
 
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
-        <div className="flex flex-col grow w-full">
-            <div className="flex flex-wrap md:flex-nowrap md:justify-between items-center justify-center gap-4 p-4">
+        <div className="flex flex-col grow w-full p-2">
+            <div className="flex flex-wrap md:flex-nowrap md:justify-between items-center justify-center gap-4">
                 <input
                     placeholder="Cari Posisi..."
                     value={JobVacancyTable.getColumn("position")?.getFilterValue() as string | number | readonly string[] || ""}
-                    onChange={(e) => JobVacancyTable.getColumn("position")?.setFilterValue(String(e.target.value))}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        JobVacancyTable.getColumn("position")?.setFilterValue(value);
+                        JobVacancyTable.setPageIndex(0);
+                    }}
                     className="w-full md:w-[30%] h-10 border-2 border-blue-500 rounded-lg text-center"
                 />
                 <div className="flex flex-row grow justify-between md:justify-end">
@@ -125,7 +134,9 @@ export default function JobVacancy(){
                     value={JobVacancyTable.getColumn("personnelSubarea")?.getFilterValue() as string || ""} 
                     onValueChange={(e) => {
                         console.log(e);
-                        JobVacancyTable.getColumn("personnelSubarea")?.setFilterValue(String(e));}}>
+                        JobVacancyTable.getColumn("personnelSubarea")?.setFilterValue(String(e));
+                        JobVacancyTable.setPageIndex(0);
+                        }}>
                         <SelectTrigger className="w-[50%] h-10 border-2 border-blue-500 rounded-lg m-1">
                             <ListFilter/>
                             <SelectValue placeholder="Department" />
@@ -151,7 +162,10 @@ export default function JobVacancy(){
                     </Select>
                     <Select 
                     value={JobVacancyTable.getColumn("personnelArea")?.getFilterValue() as string || ""} 
-                    onValueChange={(e) => JobVacancyTable.getColumn("personnelArea")?.setFilterValue(e)}>
+                    onValueChange={(e) => {
+                        JobVacancyTable.getColumn("personnelArea")?.setFilterValue(e);
+                        JobVacancyTable.setPageIndex(0);;
+                        }}>
                         <SelectTrigger className="w-[50%] h-10 border-2 border-blue-500 rounded-lg m-1">
                             <ListFilter/>
                             <SelectValue placeholder="Cabang" />
@@ -244,6 +258,9 @@ export default function JobVacancy(){
             >
             {'<'}
             </Button>
+            <span className="px-4 text-sm text-gray-700 self-center">
+                Page {JobVacancyTable.getState().pagination.pageIndex + 1} of {JobVacancyTable.getPageCount()}
+            </span>
             {/* <select
             value={JobVacancyTable.getState().pagination.pageSize}
             onChange={e => {

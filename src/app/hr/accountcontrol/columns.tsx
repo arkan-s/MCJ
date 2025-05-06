@@ -13,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export type Employee = {
+export type User = {
     nomorIndukKaryawan: string;
     namaKaryawan: string;
     gender: string;
@@ -25,7 +25,7 @@ export type Employee = {
     password: string;
 };
 
-export const columns: ColumnDef<Employee>[] = [
+export const userCol: ColumnDef<User>[] = [
     { 
         accessorKey: "nomorIndukKaryawan",
         header: "NIK",

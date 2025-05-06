@@ -18,6 +18,7 @@ import { getdatakaryawan } from "@/utils/fetchData";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import LoadingFullPage from "@/components/shared/loading/loading-fullpage";
 
 const usePrevious = <T,>(val: T) => {
     const ref = useRef<undefined | T>(undefined);
@@ -93,15 +94,15 @@ export default function Form() {
 
     if (karyawanLoading) {
         return (
-            <div className="flex flex-col items-center justify-center w-full py-20">
-                <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
-                <p className="mt-4 text-lg font-semibold">Loading data...</p>
-            </div>
+            <LoadingFullPage/>
         );
     }
 
     return (
-        <div className="grow flex flex-col px-5 py-5 w-full md:px-[5%] md:pt-[5%] md:pb-[2%] z-10 overflow-x-hidden">
+        <div className="flex flex-col grow px-5 py-5 w-full md:px-3 md:my-3 z-10 overflow-x-hidden">
+            <h1 className={`${bitter.className} block text-lg mb-5 justify-self-center text-center`}>
+                <b>{components[activeIndex].label}</b>
+            </h1>
             <div className="relative grow w-full flex flex-col overflow-y-auto overflow-x-hidden">
                 {/* MENAMPILKAN PERTANYAAN */}
                 <AnimatePresence initial={false} mode="sync" custom={direction}>
@@ -116,9 +117,6 @@ export default function Form() {
                         className="w-full p-1 flex-col"
                         style={{ position: "absolute", width: "100%" }}
                     >
-                        <h1 className={`${bitter.className} block text-lg mb-5 justify-self-center text-center`}>
-                            <b>{components[activeIndex].label}</b>
-                        </h1>
                         <div className="mb-2">{components[activeIndex].component}</div>
                     </motion.div>
                 </AnimatePresence>

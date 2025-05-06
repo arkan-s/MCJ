@@ -393,7 +393,7 @@ export default function QuestionnaireForm () {
 
     return  (
         <>
-            <div className={`flex flex-col max-h-[90%] overflow-y-hidden h-screen px-5 py-3 w-full`}>
+            <div className={`flex flex-col max-h-[90%] md:max-h-screen overflow-y-hidden h-screen px-5 py-4 w-full`}>
                 
                 <Popover>
                     <PopoverTrigger asChild>

@@ -109,7 +109,8 @@ export const columns: ColumnDef<Supervisors>[] = [
             Usia
             <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
-        ),cell: ({ row }) => {
+        ),
+        cell: ({ row }) => {
             const age = row.original.age.toFixed(2);
             
             return <span className="whitespace-nowrap">{age} Tahun</span>;

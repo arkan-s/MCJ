@@ -65,10 +65,19 @@ interface CPTable<TData, TValue> {
 }
 
 export function PositionDataTable<TData, TValue>({columns,data, addFn}: CPTable<TData, TValue>){
+    // ====== Must-Fetched Data ======
+    const { data: departmentData, isLoading: departmentLoading, isError: departmentError } = useQuery({
+        queryKey: ["department"],
+        queryFn: department,
+        retry: 3, 
+        retryDelay: (attemptIndex: number) => Math.min(1000 * 1 ** attemptIndex, 30000),
+        staleTime: Infinity,        
+    });
+    
+    // ====== Initialize and Re Component's States ======
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = useState<SortingState>([])
     const [globalFilter, setGlobalFilter] = useState("")
-    
     const positionTable = useReactTable({
         data,
         columns,
@@ -85,17 +94,9 @@ export function PositionDataTable<TData, TValue>({columns,data, addFn}: CPTable<
         },
         onGlobalFilterChange: setGlobalFilter,
     })
-
-    const { data: departmentData, isLoading: departmentLoading, isError: departmentError } = useQuery({
-        queryKey: ["department"],
-        queryFn: department,
-        retry: 3, 
-        retryDelay: (attemptIndex: number) => Math.min(1000 * 1 ** attemptIndex, 30000),
-        staleTime: Infinity,        
-    });
-
     const [newPosition, setNewPosition] = useState<string>("");
     const [dept, setDept] = useState<string>("");
+
     const handleSave = () => {
         
         if (!newPosition || !dept) {
@@ -110,7 +111,17 @@ export function PositionDataTable<TData, TValue>({columns,data, addFn}: CPTable<
 
         addFn(newData); 
     };
+    // ====== Initialize and Re Other States ======
 
+    // ====== Initialize and Re Component's Components ======
+
+    // ====== Consoling ======
+    
+    // ====== Loading Handling ======
+
+    // ====== Error Handling ======
+
+    // ====== Return ======
     return (
         <div>
             <div className="flex items-center justify-between py-4">
@@ -184,6 +195,7 @@ export function PositionDataTable<TData, TValue>({columns,data, addFn}: CPTable<
                                 value={newPosition}
                                 onChange={(e) => setNewPosition(e.target.value)}
                                 placeholder="Masukkan nama posisi"
+                                className="col-span-3"
                             />
                             </div>
 
@@ -193,25 +205,26 @@ export function PositionDataTable<TData, TValue>({columns,data, addFn}: CPTable<
                                 </Label>
                                 <Select onValueChange={setDept}>
                                 <SelectTrigger className="col-span-3">
-                                    <SelectValue placeholder="Pilih Future" />
+                                    <SelectValue placeholder="Pilih Department" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                {departmentLoading ? 
-                                        (
-                                            <div className="flex justify-center items-center">
-                                                <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
-                                                <p className="ml-2 text-sm text-gray-500">Loading...</p>
-                                            </div>
-                                        ) : departmentError ? (
-                                            <div className="flex justify-center items-center">
-                                                <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
-                                            </div>
-                                        ) : (
-                                            departmentData.map((pos: any, index:any) => (
-                                                <SelectItem key={index} value={String(pos.idPosition)}>{pos.namaPosition}</SelectItem>
-                                            ))
-                                        )
-                                    }
+                                {
+                                    departmentLoading ? 
+                                    (
+                                        <div className="flex justify-center items-center">
+                                            <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+                                            <p className="ml-2 text-sm text-gray-500">Loading...</p>
+                                        </div>
+                                    ) : departmentError ? (
+                                        <div className="flex justify-center items-center">
+                                            <p className="text-sm text-red-500">Datanya kosong atau terjadi error. Mohon untuk refresh.</p>
+                                        </div>
+                                    ) : (
+                                        departmentData.map((dept: any, index:any) => (
+                                            <SelectItem key={index} value={String(dept.idDepartment)}>{dept.namaDepartment}</SelectItem>
+                                        ))
+                                    )
+                                }
                                 </SelectContent>
                                 </Select>
                             </div>

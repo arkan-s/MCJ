@@ -21,8 +21,8 @@ export type DataKaryawan = {
 
     formFilled: number;
     questionnaire: number;
-    createdAt: string;
-    lastUpdatedAt: string | null;
+    createdAt: Date;
+    lastUpdatedAt: Date | null;
 
     DataBranch: DataBranch;
     DataLevel: DataLevel;
